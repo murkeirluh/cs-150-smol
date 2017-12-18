@@ -1,0 +1,47 @@
+<start> ::= <code-entity>*
+ 
+<code-entity> ::= <iterative-statement> | <conditional-statement> | <declarative-statement> | <expression> | <input-function> | <output-function>
+ 
+<iterative-statement> ::= while <expression> : <code-entity>* endwhile | for = <expression> , <expression> , <expression> : <code-entity>* endfor
+ 
+<conditional-statement> ::= if <expression> : <code-entity>* endif | if <expression> : <code-entity>* else <code-entity>* endif
+ 
+<declarative-statement> ::= <variable-type> <declarator>
+ 
+<variable-type> ::= int | char | float | string
+ 
+<declarator> ::= IDENTIFIER | IDENTIFIER = <atom>
+ 
+<expression> ::= <assignment-statement>
+ 
+<assignment-statement> ::= <or-statement> | IDENTIFIER = <or-statement>
+ 
+<or-statement> ::= <and-statement> | <or-statement> || <and-statement>
+ 
+<and-statement> ::= <equality-statement> | <and-statement> && <equality-statement>
+ 
+<equality-statement> ::= <relational-statement> | <equality-statement> == <relational-statement> | <equality-statement> != <relational-statement>
+ 
+<relational-statement> ::= <add-statement> | <relational-statement> < <add-statement>
+                           | <relational-statement> > <add-statement> | <relational-statement> <= <add-statement>
+                           | <relational-statement> >= <add-statement>
+ 
+<add-statement> ::= <multiply-statement>
+                            | <add-statement> + <multiply-statement>
+                             | <add-statement> - <multiply-statement>
+ 
+<multiply-statement> ::= <unary-statement> | <multiply-statement> * <unary-statement>
+                        | <multiply-statement> / <unary-statement> | <multiply-statement> % <unary-statement>
+
+<unary-statement> ::= <exponent> | - <unary-statement> | ! <unary-statement>
+ 
+<exponent> ::= <term> | <term> ^ <unary-statement>
+
+<term> ::= IDENTIFIER | <atom> | ( <expression> )
+
+<atom> ::= INTEGER | FLOAT | CHARACTER | STRING
+ 
+<input-function> ::= input( IDENTIFIER+ )
+ 
+<output-function> ::= print( (“<atom>” | IDENTIFIER) {+ (“<atom>” | IDENTIFIER)}* )
+
