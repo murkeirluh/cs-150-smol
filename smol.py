@@ -13,10 +13,6 @@ reserved = {
     'for' : 'FOR',
     'endfor' : 'ENDFOR',
     'endwhile' : 'ENDWHILE',
-    'int' : 'TYP_INT',
-    'float' : 'TYP_FLOAT',
-    'str' : 'TYP_STR',
-    'bool' : 'TYP_BOOL',
     'True' : 'TRUE',
     'False' : 'FALSE',
     'input' : 'INPUT',
@@ -28,8 +24,8 @@ tokens = [
    'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON',
     # operations
    'AND','OR','NOT',
-   'PLUS','MINUS','UMINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
-   'LPAREN','RPAREN',
+   'PLUS','MINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
+   'LPAREN','RPAREN', 'LBRACKET', 'RBRACKET',
    'GT','LT','GTEQ','LTEQ', 
    'EQ','NEQ',
     ] + list(reserved.values())
@@ -45,7 +41,6 @@ t_OR = r'\|\|'
 t_NOT = r'\!'
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
-t_UMINUS  = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'\/'
 t_EQUALS  = r'='
@@ -53,6 +48,8 @@ t_POWER = r'\^'
 t_MOD = r'%'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 t_GT = r'>'
 t_LT = r'<'
 t_GTEQ = r'>='
@@ -99,22 +96,22 @@ def t_error(t):
 # Build the lexer
 import ply.lex as lex
 lexer = lex.lex()
-
+'''
 # for debugging purposes
-'''data = "'a' 1"
+data = "-1"
 lexer.input(data)
 
 while True:
   tok = lexer.token()
   if not tok:
     break
-  print(tok)'''
-
+  print(tok)
+'''
 
 # Parsing rules
 precedence = (
     ('left','PLUS','MINUS','TIMES','DIVIDE'),
-    ('right','POWER', 'UMINUS'),
+    ('right','POWER'),
     )
 
 # dictionary of names
@@ -122,12 +119,9 @@ names = { }
 types = { }
 
 # start
-def p_start_1(p):
+def p_start(p):
    'start : code_entity'
    p[0] = p[1]
-
-#def p_start_2(p):
-#   'start : start code_entity'
    
 # code entity
 def p_code_entity_1(p):
@@ -137,20 +131,16 @@ def p_code_entity_1(p):
 def p_code_entity_2(p):
    'code_entity : conditional_statement'
    p[0] = p[1]
-    
+  
 def p_code_entity_3(p):
-   'code_entity : declarative_statement'
-   p[0] = p[1]
-    
-def p_code_entity_4(p):
    'code_entity : expression'
    p[0] = p[1]
 
-def p_code_entity_5(p):
+def p_code_entity_4(p):
    'code_entity : input_function'
    p[0] = p[1]
     
-def p_code_entity_6(p):
+def p_code_entity_5(p):
    'code_entity : output_function'
    p[0] = p[1]
     
@@ -167,53 +157,7 @@ def p_conditional_statement_1(p):
 
 def p_conditional_statement_2(p):
    'conditional_statement : IF expression COLON start ENDIF'
-   print("p[2]:", p[2])
-   print("p[4]:", p[4])
-   if p[2] == True:
-      p[4]
-   else:
-      p[4] == None
-    
-# declarative statements
-def p_declarative_statement1(p):
-   'declarative_statement : variable_type IDENTIFIER'
-   if p[2] in types:
-     del types[p[2]]
-   if p[2] in names:
-     del names[p[2]]
-   types[p[2]] = p[1]
-
-def p_declarative_statement2(p):
-   'declarative_statement : variable_type IDENTIFIER EQUALS atom'
-   if type(p[4]).__name__ == p[1]:
-     if p[2] in types:
-       del types[p[2]]
-
-     if p[2] in names:
-       del names[p[2]]
-
-     types[p[2]] = p[1]
-     names[p[2]] = p[4]
-   else:
-     print("Error:", p[4], "is not of type", p[1]);  
-
-# variable types
-def p_variable_type1(p):
-   'variable_type : TYP_INT'
-   p[0] = p[1]
-
-def p_variable_type2(p):
-   'variable_type : TYP_FLOAT'
-   p[0] = p[1]
-
-def p_variable_type3(p):
-   'variable_type : TYP_STR'
-   p[0] = p[1]
-
-def p_variable_type4(p):
-   'variable_type : TYP_BOOL'
-   p[0] = p[1]
-   
+  
 # expression
 def p_expression(p):
     'expression : assignment_statement'
@@ -226,16 +170,12 @@ def p_assignment_statement_1(p):
     
 def p_assignment_statement_2(p):
     'assignment_statement : IDENTIFIER EQUALS or_statement'
-    if p[1] in types:
-      if type(p[3]).__name__ == types[p[1]]:
-        if p[1] in names:
-          del names[p[1]]
+    if p[1] in names:
+      del names[p[1]]
+      del types[p[1]]
 
-        names[p[1]] = p[3]
-      else:
-        print("Error:", p[3], "is not of type", types[p[1]]);
-    else:
-      print("Error:", p[1], "not declared")
+    types[p[1]] = type(p[3]).__name__
+    names[p[1]] = p[3]
 
 # or statement
 def p_or_statement_1(p):
@@ -244,7 +184,10 @@ def p_or_statement_1(p):
     
 def p_or_statement_2(p):
     'or_statement : or_statement OR and_statement'
-    p[0] = p[1] or p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] or p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_and_statement_1(p):
     'and_statement : equality_statement'
@@ -252,7 +195,10 @@ def p_and_statement_1(p):
     
 def p_and_statement_2(p):
     'and_statement : and_statement AND equality_statement'
-    p[0] = p[1] and p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] and p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 # equality statement
 def p_equality_statement_1(p):
@@ -261,11 +207,17 @@ def p_equality_statement_1(p):
     
 def p_equality_statement_2(p):
     'equality_statement : equality_statement EQ relational_statement'
-    p[0] = (p[1] == p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = (p[1] == p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_equality_statement_3(p):
     'equality_statement : equality_statement NEQ relational_statement'
-    p[0] = not (p[1] == p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = not (p[1] == p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 # relational statement
 def p_relational_statement_1(p):
@@ -274,19 +226,31 @@ def p_relational_statement_1(p):
     
 def p_relational_statement_2(p):
     'relational_statement : relational_statement LT add_statement'
-    p[0] = (p[1] < p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = (p[1] < p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_3(p):
     'relational_statement : relational_statement GT add_statement'
-    p[0] = (p[1] > p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] =  (p[1] > p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_4(p):
     'relational_statement : relational_statement LTEQ add_statement'
-    p[0] = (p[1] <= p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = (p[1] <= p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_5(p):
     'relational_statement : relational_statement GTEQ add_statement'
-    p[0] = (p[1] >= p[3])
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = (p[1] >= p[3])
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
    
 def p_add_statement_1(p):
     'add_statement : multiply_statement'
@@ -294,11 +258,17 @@ def p_add_statement_1(p):
     
 def p_add_statement_2(p):
     'add_statement : add_statement PLUS multiply_statement'
-    p[0] = p[1] + p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] + p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_add_statement_3(p):
     'add_statement : add_statement MINUS multiply_statement'
-    p[0] = p[1] - p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] - p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_multiply_statement_1(p):
     'multiply_statement : unary_statement'
@@ -306,15 +276,24 @@ def p_multiply_statement_1(p):
     
 def p_multiply_statement_2(p):
     'multiply_statement : multiply_statement TIMES unary_statement'
-    p[0] = p[1] * p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] * p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_multiply_statement_3(p):
     'multiply_statement : multiply_statement DIVIDE unary_statement'
-    p[0] = p[1] / p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] / p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_multiply_statement_4(p):
     'multiply_statement : multiply_statement MOD unary_statement'
-    p[0] = p[1] % p[3]
+    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+      p[0] = p[1] % p[3]
+    else:
+      print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_unary_statement_1(p):
     'unary_statement : exponent'
@@ -322,7 +301,7 @@ def p_unary_statement_1(p):
 
 def p_unary_statement_2(p):
     'unary_statement : MINUS unary_statement'
-    p[0] = -p[1]
+    p[0] = -p[2]
     
 def p_unary_statement_3(p):
     'unary_statement : NOT unary_statement'
@@ -339,12 +318,9 @@ def p_exponent_2(p):
 def p_term_1(p):
     'term : IDENTIFIER'
     if p[1] in types:
-      if p[1] in names:
         p[0] = names[p[1]]
-      else:
-        print("Error:", p[1], "not initialized")
     else:
-      print("Error:", p[1], "not declared")
+      print("Error:", p[1], "not defined")
     
 def p_term_2(p):
     'term : atom'
@@ -373,6 +349,28 @@ def p_atom4(p):
 def p_atom5(p):
    'atom : FALSE'
    p[0] = False
+
+global array
+array = []
+
+def p_atom6(p):
+   'atom : LBRACKET elements RBRACKET'
+   array = []
+   p[0] = p[2]
+
+def p_elements1(p):
+    'elements : elements INTEGER'
+    array.append(p[2])
+    p[0] = array
+
+def p_elements2(p):
+    'elements : elements FLOAT'
+    array.append(p[2])
+    p[0] = array
+
+def p_elements3(p):
+    'elements : '
+    pass
     
 def p_input_function(p):
     'input_function : INPUT LPAREN IDENTIFIER RPAREN' # input(variable)
