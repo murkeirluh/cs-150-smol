@@ -6,30 +6,29 @@
 # -----------------------------------------------------------------------------
 
 reserved = {
-  'if' :'IF',
-  'else' :'ELSE',
-  'endif' :'ENDIF',
-  'while' :'WHILE',
-  'for' :'FOR',
-  'endfor' :'ENDFOR',
-  'endwhile' :'ENDWHILE',
-  'int' :'TYP_INT',
-  'char' :'TYP_CHAR',
-  'float' :'TYP_FLOAT',
-  'str' :'TYP_STR',
-  'input' : 'INPUT',
-  'print' : 'PRINT',
+    'if' : 'IF',
+    'else' : 'ELSE',
+    'endif' : 'ENDIF',
+    'while' : 'WHILE',
+    'for' : 'FOR',
+    'endfor' : 'ENDFOR',
+    'endwhile' : 'ENDWHILE',
+    'int' : 'TYP_INT',
+    'float' : 'TYP_FLOAT',
+    'str' : 'TYP_STR',
+    'bool' : 'TYP_BOOL',
+    'True' : 'TRUE',
+    'False' : 'FALSE',
+    'input' : 'INPUT',
+    'print' : 'PRINT',
 }
 
 tokens = [
     # atoms
-   'IDENTIFIER','INTEGER','FLOAT','CHARACTER','STRING','COMMA','COLON',
-    # iterations
-   'WHILE','FOR','ENDFOR','ENDWHILE',
-   'IF','ELSE','ENDIF', 
+   'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON',
     # operations
    'AND','OR','NOT',
-   'PLUS','MINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
+   'PLUS','MINUS','UMINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
    'LPAREN','RPAREN',
    'GT','LT','GTEQ','LTEQ', 
    'EQ','NEQ',
@@ -37,9 +36,7 @@ tokens = [
 
 ###  Tokens  ###
 # atoms
-t_IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
-t_CHARACTER = r'[ -~]'
-t_STRING = r'(\'\w+\'|"\w+")'
+t_STRING = r'\"([^\\\n]|(\\.))*?\"'
 t_COMMA = r'\,'
 t_COLON = r':'
 # operations
@@ -48,6 +45,7 @@ t_OR = r'\|\|'
 t_NOT = r'\!'
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
+t_UMINUS  = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'\/'
 t_EQUALS  = r'='
@@ -61,19 +59,12 @@ t_GTEQ = r'>='
 t_LTEQ = r'<='
 t_EQ = r'=='
 t_NEQ = r'\!='
-# types
-t_TYP_INT = r'int'
-t_TYP_CHAR = r'char'
-t_TYP_FLOAT = r'float'
-t_TYP_STRING = r'str'
 
-def t_INTEGER(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Error: %d is not a valid integer" % t.value)
-        t.value = 0
+def t_IDENTIFIER(t):
+    r'[a-zA-Z][a-zA-Z0-9]*'
+    t.type = reserved.get(t.value, 'IDENTIFIER')
+    #if t.value in names:
+    #  print(names[t.value])
     return t
 
 def t_FLOAT(t):
@@ -85,9 +76,17 @@ def t_FLOAT(t):
         t.value = 0.0
     return t
 
+def t_INTEGER(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Error: %d is not a valid integer" % t.value)
+        t.value = 0
+    return t
 
 # Ignored characters
-t_ignore = " \t"
+t_ignore = ' \t'
 
 def t_newline(t):
     r'\n+'
@@ -101,240 +100,310 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
-# Parsing rules
+# for debugging purposes
+'''data = "'a' 1"
+lexer.input(data)
 
+while True:
+  tok = lexer.token()
+  if not tok:
+    break
+  print(tok)'''
+
+
+# Parsing rules
 precedence = (
     ('left','PLUS','MINUS','TIMES','DIVIDE'),
-    ('right','UMINUS'),
+    ('right','POWER', 'UMINUS'),
     )
 
 # dictionary of names
 names = { }
+types = { }
 
 # start
-def p_start_1(t):
+def p_start_1(p):
    'start : code_entity'
-    pass
+   p[0] = p[1]
 
-def p_start_2(t):
-   'start : start code_entity'
-    pass
-
+#def p_start_2(p):
+#   'start : start code_entity'
+   
 # code entity
-def p_code_entity_1(t):
+def p_code_entity_1(p):
    'code_entity : iterative_statement'
-    pass
+   p[0] = p[1]
 
-def p_code_entity_2(t):
+def p_code_entity_2(p):
+   'code_entity : conditional_statement'
+   p[0] = p[1]
+    
+def p_code_entity_3(p):
    'code_entity : declarative_statement'
-    pass 
-
-def p_code_entity_3(t):
+   p[0] = p[1]
+    
+def p_code_entity_4(p):
    'code_entity : expression'
-    pass
+   p[0] = p[1]
 
-def p_code_entity_4(t):
+def p_code_entity_5(p):
    'code_entity : input_function'
-    pass
-
-def p_code_entity_5(t):
+   p[0] = p[1]
+    
+def p_code_entity_6(p):
    'code_entity : output_function'
-    pass
-
+   p[0] = p[1]
+    
 # iterative statements
-def p_iterative_statement_1(t):
-   'iterative_statement : WHILE expression COLON code_entity ENDWHILE'
-    pass
-
-def p_iterative_statement_2(t):
-   'iterative_statement : FOR EQUALS expression COMMA expression COMMA expression COLON code_entity ENDFOR'
-    pass
-
-def p_iterative_statement_3(t):
-   'iterative_statement : WHILE expression COLON ENDWHILE'
-    pass
-
-def p_iterative_statement_4(t):
-   'iterative_statement : FOR EQUALS expression COMMA expression COMMA expression COLON ENDFOR'
-    pass
-
+def p_iterative_statement_1(p):
+   'iterative_statement : WHILE expression COLON start ENDWHILE'
+    
+def p_iterative_statement_2(p):
+   'iterative_statement : FOR EQUALS expression COMMA expression COMMA expression COLON start ENDFOR'
+    
 # conditional statements
-def p_conditional_statement_1(t):
-   'conditional_statement : IF expression COLON code_entity ENDIF'
-    pass
+def p_conditional_statement_1(p):
+   'conditional_statement : IF expression COLON start ELSE start ENDIF'
 
-def p_conditional_statement_2(t):
-   'conditional_statement : IF expression COLON code_entity ELSE code_entity ENDIF'
-    pass
-
-def p_conditional_statement_3(t):
-   'conditional_statement : IF expression COLON ENDIF'
-    pass
-
+def p_conditional_statement_2(p):
+   'conditional_statement : IF expression COLON start ENDIF'
+   print("p[2]:", p[2])
+   print("p[4]:", p[4])
+   if p[2] == True:
+      p[4]
+   else:
+      p[4] == None
+    
 # declarative statements
-def p_declarative_statement(t):
-   'declarative_statement : variable_type declarator'
-    pass
+def p_declarative_statement1(p):
+   'declarative_statement : variable_type IDENTIFIER'
+   if p[2] in types:
+     del types[p[2]]
+   if p[2] in names:
+     del names[p[2]]
+   types[p[2]] = p[1]
+
+def p_declarative_statement2(p):
+   'declarative_statement : variable_type IDENTIFIER EQUALS atom'
+   if type(p[4]).__name__ == p[1]:
+     if p[2] in types:
+       del types[p[2]]
+
+     if p[2] in names:
+       del names[p[2]]
+
+     types[p[2]] = p[1]
+     names[p[2]] = p[4]
+   else:
+     print("Error:", p[4], "is not of type", p[1]);  
 
 # variable types
-def p_variable_type(t):
-   'variable_type : TYP_INT | TYP_CHAR | TYP_FLOAT | TYP_STR'
-   pass
+def p_variable_type1(p):
+   'variable_type : TYP_INT'
+   p[0] = p[1]
 
-# declarator
-def p_declarator_1(t):
-    'declarator : IDENTIFIER'
-    pass
+def p_variable_type2(p):
+   'variable_type : TYP_FLOAT'
+   p[0] = p[1]
 
-def p_declarator_2(t):
-    'declarator : IDENTIFIER EQUALS atom'
-    pass
+def p_variable_type3(p):
+   'variable_type : TYP_STR'
+   p[0] = p[1]
 
+def p_variable_type4(p):
+   'variable_type : TYP_BOOL'
+   p[0] = p[1]
+   
 # expression
 def p_expression(p):
     'expression : assignment_statement'
-    pass
-
+    p[0] = p[1]
+    
 # assignment statement
 def p_assignment_statement_1(p):
     'assignment_statement : or_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_assignment_statement_2(p):
     'assignment_statement : IDENTIFIER EQUALS or_statement'
-    pass
+    if p[1] in types:
+      if type(p[3]).__name__ == types[p[1]]:
+        if p[1] in names:
+          del names[p[1]]
+
+        names[p[1]] = p[3]
+      else:
+        print("Error:", p[3], "is not of type", types[p[1]]);
+    else:
+      print("Error:", p[1], "not declared")
 
 # or statement
 def p_or_statement_1(p):
-    'or_statement: and_statement'
-    pass
-
+    'or_statement : and_statement'
+    p[0] = p[1]
+    
 def p_or_statement_2(p):
     'or_statement : or_statement OR and_statement'
-    pass
-
+    p[0] = p[1] or p[3]
+    
 def p_and_statement_1(p):
     'and_statement : equality_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_and_statement_2(p):
     'and_statement : and_statement AND equality_statement'
-    pass
-
+    p[0] = p[1] and p[3]
+    
 # equality statement
 def p_equality_statement_1(p):
     'equality_statement : relational_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_equality_statement_2(p):
     'equality_statement : equality_statement EQ relational_statement'
-    pass
-
+    p[0] = (p[1] == p[3])
+    
 def p_equality_statement_3(p):
     'equality_statement : equality_statement NEQ relational_statement'
-    pass
-
+    p[0] = not (p[1] == p[3])
+    
 # relational statement
 def p_relational_statement_1(p):
     'relational_statement : add_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_relational_statement_2(p):
     'relational_statement : relational_statement LT add_statement'
-    pass
-
+    p[0] = (p[1] < p[3])
+    
 def p_relational_statement_3(p):
     'relational_statement : relational_statement GT add_statement'
-    pass
-
+    p[0] = (p[1] > p[3])
+    
 def p_relational_statement_4(p):
     'relational_statement : relational_statement LTEQ add_statement'
-    pass
-
+    p[0] = (p[1] <= p[3])
+    
 def p_relational_statement_5(p):
     'relational_statement : relational_statement GTEQ add_statement'
-    pass
-
+    p[0] = (p[1] >= p[3])
+   
 def p_add_statement_1(p):
     'add_statement : multiply_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_add_statement_2(p):
     'add_statement : add_statement PLUS multiply_statement'
-    pass
-
+    p[0] = p[1] + p[3]
+    
 def p_add_statement_3(p):
     'add_statement : add_statement MINUS multiply_statement'
-    pass
-
+    p[0] = p[1] - p[3]
+    
 def p_multiply_statement_1(p):
     'multiply_statement : unary_statement'
-    pass
-
+    p[0] = p[1]
+    
 def p_multiply_statement_2(p):
     'multiply_statement : multiply_statement TIMES unary_statement'
-    pass
-
+    p[0] = p[1] * p[3]
+    
 def p_multiply_statement_3(p):
     'multiply_statement : multiply_statement DIVIDE unary_statement'
-    pass
-
+    p[0] = p[1] / p[3]
+    
 def p_multiply_statement_4(p):
     'multiply_statement : multiply_statement MOD unary_statement'
-    pass
-
+    p[0] = p[1] % p[3]
+    
 def p_unary_statement_1(p):
     'unary_statement : exponent'
-    pass
+    p[0] = p[1]
 
 def p_unary_statement_2(p):
     'unary_statement : MINUS unary_statement'
-    pass
-
+    p[0] = -p[1]
+    
 def p_unary_statement_3(p):
     'unary_statement : NOT unary_statement'
-    pass
-
+    p[0] = not p[1]
+   
 def p_exponent_1(p):
     'exponent : term'
-    pass
-
+    p[0] = p[1]
+    
 def p_exponent_2(p):
     'exponent : term POWER unary_statement'
-    pass
-
+    p[0] = p[1] ** p[3]
+    
 def p_term_1(p):
     'term : IDENTIFIER'
-    pass
-
+    if p[1] in types:
+      if p[1] in names:
+        p[0] = names[p[1]]
+      else:
+        print("Error:", p[1], "not initialized")
+    else:
+      print("Error:", p[1], "not declared")
+    
 def p_term_2(p):
     'term : atom'
-    pass
-
+    p[0] = p[1]
+    
 def p_term_3(p):
     'term : LPAREN expression RPAREN'
-    pass
+    p[0] = p[2]
+    
+def p_atom1(p):
+   'atom : INTEGER'
+   p[0] = p[1]
 
-def p_atom(p):
-   'atom : INTEGER | FLOAT | CHARACTER | STRING'
-    pass
+def p_atom2(p):
+   'atom : FLOAT'
+   p[0] = p[1]
 
+def p_atom3(p):
+   'atom : STRING'
+   p[0] = p[1]
+
+def p_atom4(p):
+   'atom : TRUE'
+   p[0] = True
+
+def p_atom5(p):
+   'atom : FALSE'
+   p[0] = False
+    
 def p_input_function(p):
-    'input_function : INPUT LPAREN IDENTIFIER RPAREN'
-    pass
+    'input_function : INPUT LPAREN IDENTIFIER RPAREN' # input(variable)
+    inp = input()
+    if p[3] in types:
+      inp = parser.parse(inp)
+      if type(inp).__name__ == types[p[3]]:
+        if p[3] in names:
+          del names[p[3]]
+
+        names[p[3]] = inp
+      else:
+        print("Error:", inp, "is not of type", types[p[3]]);
+    else:
+      print("Error:", p[3], "not declared")    
 
 def p_output_function(p):
-    'output_function : PRINT LPAREN ATOM RPAREN'
-    ##### MODIFY THIS RULE
-    pass
+    'output_function : PRINT LPAREN term RPAREN'
+    print(p[3])
+
+def p_error(p):
+    print("Syntax error!\n")    
 
 import ply.yacc as yacc
 parser = yacc.yacc()
 
 while True:
     try:
-        s = input('>>> ')   # Use raw_input on Python 2
+        s = input(':: ')   # Use raw_input on Python 2
     except EOFError:
         break
-    parser.parse(s, tracking=True)
-
+    if not s: continue
+    result = parser.parse(s) #, tracking=True)
+    print(result)
