@@ -170,12 +170,9 @@ def p_assignment_statement_1(p):
     
 def p_assignment_statement_2(p):
     'assignment_statement : IDENTIFIER EQUALS or_statement'
-    if p[1] in names:
-      del names[p[1]]
-      del types[p[1]]
-
-    types[p[1]] = type(p[3]).__name__
-    names[p[1]] = p[3]
+    if type(p[3]).__name__ != 'NoneType':
+      types[p[1]] = type(p[3]).__name__
+      names[p[1]] = p[3]
 
 # or statement
 def p_or_statement_1(p):
@@ -184,7 +181,7 @@ def p_or_statement_1(p):
     
 def p_or_statement_2(p):
     'or_statement : or_statement OR and_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] or p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -195,7 +192,7 @@ def p_and_statement_1(p):
     
 def p_and_statement_2(p):
     'and_statement : and_statement AND equality_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] and p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -207,14 +204,14 @@ def p_equality_statement_1(p):
     
 def p_equality_statement_2(p):
     'equality_statement : equality_statement EQ relational_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = (p[1] == p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_equality_statement_3(p):
     'equality_statement : equality_statement NEQ relational_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = not (p[1] == p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -226,28 +223,28 @@ def p_relational_statement_1(p):
     
 def p_relational_statement_2(p):
     'relational_statement : relational_statement LT add_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = (p[1] < p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_3(p):
     'relational_statement : relational_statement GT add_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] =  (p[1] > p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_4(p):
     'relational_statement : relational_statement LTEQ add_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = (p[1] <= p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_relational_statement_5(p):
     'relational_statement : relational_statement GTEQ add_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = (p[1] >= p[3])
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -258,14 +255,14 @@ def p_add_statement_1(p):
     
 def p_add_statement_2(p):
     'add_statement : add_statement PLUS multiply_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] + p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_add_statement_3(p):
     'add_statement : add_statement MINUS multiply_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType' and type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType':
       p[0] = p[1] - p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -276,21 +273,21 @@ def p_multiply_statement_1(p):
     
 def p_multiply_statement_2(p):
     'multiply_statement : multiply_statement TIMES unary_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] * p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_multiply_statement_3(p):
     'multiply_statement : multiply_statement DIVIDE unary_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] / p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
     
 def p_multiply_statement_4(p):
     'multiply_statement : multiply_statement MOD unary_statement'
-    if type(p[1]).__name__ != 'list' and type(p[3]).__name__ != 'list':
+    if (type(p[1]).__name__ != 'list' and type(p[1]).__name__ != 'NoneType') and (type(p[3]).__name__ != 'list' and type(p[3]).__name__ != 'NoneType'):
       p[0] = p[1] % p[3]
     else:
       print("Error: Incompatible types", type(p[1]).__name__, "and", type(p[3]).__name__)
@@ -355,8 +352,18 @@ array = []
 
 def p_atom6(p):
    'atom : LBRACKET elements RBRACKET'
+   global array
    array = []
    p[0] = p[2]
+
+def p_atom7(p):
+   'atom : IDENTIFIER LBRACKET INTEGER RBRACKET'
+   getarray = []
+   getarray = names[p[1]]
+   if p[3] < len(getarray):
+     p[0] = getarray[p[3]]
+   else:
+     print("Error: Index is out of range")
 
 def p_elements1(p):
     'elements : elements INTEGER'
@@ -404,4 +411,5 @@ while True:
         break
     if not s: continue
     result = parser.parse(s) #, tracking=True)
-    print(result)
+    if result:
+      print(result)
