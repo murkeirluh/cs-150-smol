@@ -23,7 +23,7 @@ reserved = {
 # List of tokens
 tokens = [
     # atoms
-   'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON',
+   'IDENTIFIER','INTEGER','FLOAT','CHARACTER','STRING','COMMA','COLON',
     # operations
    'AND','OR','NOT',
    'PLUS','MINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
@@ -34,6 +34,7 @@ tokens = [
 
 ###  Tokens  ###
 # atoms
+t_CHARACTER = r'(L)?\'([^\\\n]|(\\.))*?\''
 t_STRING = r'\"([^\\\n]|(\\.))*?\"'
 t_COMMA = r'\,'
 t_COLON = r':'
@@ -157,8 +158,8 @@ def p_iterative_statement_2(p):
 # conditional statements
 # <conditional-statement> ::= if <expression> : <start> else <start> endif
 #                           | if <expression> : <start> endif
-#def p_conditional_statement_1(p):
-#   'conditional_statement : IF expression then_statement else_statement ENDIF'
+def p_conditional_statement_1(p):
+   'conditional_statement : IF expression then_statement else_statement ENDIF'
    '''if p[2]:
      p[0] = p[3]
    else:
@@ -166,9 +167,9 @@ def p_iterative_statement_2(p):
 
 def p_conditional_statement_2(p):
    'conditional_statement : IF expression then_statement ENDIF'
-   if p[2]:
-     p[0] = p[4]
-   #p[0] = ('if', p[2], p[4])
+   #if p[2]:
+   #  p[0] = p[4]
+   #p[0] = If(p[2], p[3], None)
 
 # then statement for conditional statements
 def p_then_statement(p):
@@ -378,27 +379,31 @@ def p_atom2(p):
    p[0] = p[1]
 
 def p_atom3(p):
-   'atom : STRING'
+   'atom : CHARACTER'
    p[0] = p[1]
 
 def p_atom4(p):
+   'atom : STRING'
+   p[0] = p[1]
+
+def p_atom5(p):
    'atom : TRUE'
    p[0] = True
 
-def p_atom5(p):
+def p_atom6(p):
    'atom : FALSE'
    p[0] = False
 
 global array
 array = []
 
-def p_atom6(p):
+def p_atom7(p):
    'atom : LBRACKET elements RBRACKET'
    global array
    array = []
    p[0] = p[2]
 
-def p_atom7(p):
+def p_atom8(p):
    'atom : IDENTIFIER LBRACKET INTEGER RBRACKET'
    getarray = []
    if p[1] in names:
