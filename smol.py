@@ -1,11 +1,14 @@
 
 # -----------------------------------------------------------------------------
-# CS 150 MP 
+# CS 150 Machine Problem
 #
 # Smol 
+# by Mikayla Lopez and Alyssa Senatin
 # -----------------------------------------------------------------------------
 
 # Reserved Words
+# - words that are part of the language and
+#   must not be used by the user for identifiers
 reserved = {
     'if' : 'IF',
     'else' : 'ELSE',
@@ -20,25 +23,28 @@ reserved = {
     'print' : 'PRINT',
 }
 
-# List of tokens
+# List of Tokens
+# - names used by the lexer
 tokens = [
     # atoms
-   'IDENTIFIER','INTEGER','FLOAT','CHARACTER','STRING','COMMA','COLON',
-    # operations
+   'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON',
+    # operators
    'AND','OR','NOT',
-   'PLUS','MINUS','TIMES','DIVIDE','EQUALS','POWER','MOD',
-   'LPAREN','RPAREN', 'LBRACKET', 'RBRACKET',
+   'PLUS','MINUS','TIMES','DIVIDE','POWER','MOD',
    'GT','LT','GTEQ','LTEQ', 
    'EQ','NEQ',
+   # assignment
+   'EQUALS',
+   # grouping
+   'LPAREN','RPAREN', 'LBRACKET', 'RBRACKET',
     ] + list(reserved.values())
 
-###  Tokens  ###
+# Token Specifications
 # atoms
-t_CHARACTER = r'(L)?\'([^\\\n]|(\\.))*?\''
 t_STRING = r'\"([^\\\n]|(\\.))*?\"'
 t_COMMA = r'\,'
 t_COLON = r':'
-# operations
+# operators
 t_AND = r'\&\&'
 t_OR = r'\|\|'
 t_NOT = r'\!'
@@ -46,26 +52,26 @@ t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'\/'
-t_EQUALS  = r'='
 t_POWER = r'\^'
 t_MOD = r'%'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
-t_LBRACKET = r'\['
-t_RBRACKET = r'\]'
 t_GT = r'>'
 t_LT = r'<'
 t_GTEQ = r'>='
 t_LTEQ = r'<='
 t_EQ = r'=='
 t_NEQ = r'\!='
+# assignment
+t_EQUALS  = r'='
+# grouping
+t_LPAREN  = r'\('
+t_RPAREN  = r'\)'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 
 # atoms
 def t_IDENTIFIER(t):
     r'[a-zA-Z][a-zA-Z0-9]*'
     t.type = reserved.get(t.value, 'IDENTIFIER') # check if identifier is in reserved words
-    #if t.value in names:
-    #  print(names[t.value])
     return t
 
 def t_FLOAT(t):
@@ -103,19 +109,7 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
-'''
-# for debugging purposes
-data = "-1"
-lexer.input(data)
-
-while True:
-  tok = lexer.token()
-  if not tok:
-    break
-  print(tok)
-'''
-
-# Parsing rules
+# Precedence values
 precedence = (
     ('left','PLUS','MINUS','TIMES','DIVIDE','ELSE','COLON'),
     ('right','POWER'),
@@ -125,13 +119,11 @@ precedence = (
 names = { }
 types = { }
 
-global then_flag
-then_flag = 1
-global else_flag
-else_flag = 1
+# Grammar rules
 
-# start
-# <start> ::= <code-entity>*
+''' start
+    <start> ::= <code-entity>* '''
+
 def p_start1(p):
    'start : '
    pass
@@ -140,12 +132,13 @@ def p_start2(p):
    'start : start code_entity'
    p[0] = p[2]
    
-# code entity
-# <code-entity> ::= <iterative-statement>
-#                 | <conditional-statement>
-#                 | <expression>
-#                 | <input-function>
-#                 | <output-function>
+''' code entity
+    <code-entity> ::= <iterative-statement>
+                    | <conditional-statement>
+                    | <expression>
+                    | <input-function>
+                    | <output-function> '''
+
 def p_code_entity(p):
    '''code_entity : iterative_statement
                   | conditional_statement
@@ -154,9 +147,10 @@ def p_code_entity(p):
                   | output_function'''
    p[0] = p[1]
    
-# iterative statements
-# <iterative-statement> ::= while <expression> : <start> endwhile
-#                         | for <expression> , <expression> , <expression> : <start> endfor
+''' iterative statements
+    <iterative-statement> ::= while <expression> : <start> endwhile
+                            | for <expression> , <expression> , <expression> : <start> endfor '''
+
 def p_iterative_statement_1(p):
    'iterative_statement : WHILE expression COLON start ENDWHILE'
    p[0] = (p.lineno(1), 'while', p[2], p[4])
@@ -164,15 +158,11 @@ def p_iterative_statement_1(p):
 def p_iterative_statement_2(p):
    'iterative_statement : FOR expression COMMA expression COMMA expression COLON start ENDFOR'
    p[0] = (p.lineno(1), 'for', p[2], p[4], p[6], p[8])
-
-#def p_for_expression(p):
-   '''for_expression : INTEGER
-                     | IDENTIFIER'''
-#   p[0] = p[1]
     
-# conditional statements
-# <conditional-statement> ::= if <expression> : <start> else <start> endif
-#                           | if <expression> : <start> endif
+''' conditional statements
+    <conditional-statement> ::= if <expression> : <start> else <start> endif
+                              | if <expression> : <start> endif '''
+
 def p_conditional_statement_1(p):
    'conditional_statement : IF expression COLON start ELSE start ENDIF'
    p[0] = (p.lineno(1), 'if', p[2], p[4], p[6])
@@ -181,22 +171,29 @@ def p_conditional_statement_2(p):
    'conditional_statement : IF expression COLON start ENDIF'
    p[0] = (p.lineno(1), 'if', p[2], p[4])
 
-# expression
-# <expression> ::= <assignment-statement>
+''' expression
+    <expression> ::= <assignment-statement> '''
+
 def p_expression(p):
     'expression : assignment_statement'
     p[0] = p[1]
     
-# assignment statement
-# <assignment-statement> ::= <or-statement>
-#                          | IDENTIFIER = <or-statement>
+''' assignment statement
+    <assignment-statement> ::= <or-statement>
+                             | IDENTIFIER = <or-statement> '''
+
 def p_assignment_statement_1(p):
     'assignment_statement : or_statement'
     p[0] = p[1]
     
 def p_assignment_statement_2(p):
     'assignment_statement : IDENTIFIER EQUALS or_statement'
-    p[0] = (p.lineno(2), 'assign', p[1], p[3])
+    p[0] = (p.lineno(2), 'assign-var', p[1], p[3])
+
+def p_assignment_statement_3(p):
+    '''assignment_statement : IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS INTEGER
+                            | IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS FLOAT'''
+    p[0] = (p.lineno(2), 'assign-arr', p[1], p[3], p[6])
 
 # or statement
 # <or-statement> ::= <and-statement>
@@ -336,26 +333,22 @@ def p_atom2(p):
    p[0] = (p.lineno(1), 'atom', p[1])
 
 def p_atom3(p):
-   'atom : CHARACTER'
-   p[0] = (p.lineno(1), 'atom', p[1])
-
-def p_atom4(p):
    'atom : STRING'
    p[0] = (p.lineno(1), 'atom', p[1])
 
-def p_atom5(p):
+def p_atom4(p):
    'atom : TRUE'
    p[0] = (p.lineno(1), 'atom', p[1])
 
-def p_atom6(p):
+def p_atom5(p):
    'atom : FALSE'
    p[0] = (p.lineno(1), 'atom', p[1])
 
-def p_atom7(p):
+def p_atom6(p):
    'atom : LBRACKET elements RBRACKET'
    p[0] = (p.lineno(1), 'atom-array', p[2])
 
-def p_atom8(p):
+def p_atom7(p):
    'atom : IDENTIFIER LBRACKET INTEGER RBRACKET'
    p[0] = (p.lineno(1), 'atom-indexing', p[1], p[3])
 
@@ -410,11 +403,20 @@ def interpreter(result):
         if len(result) == 5:
           interpreter(result[4])
 
-    if result[1] == 'assign':
+    if result[1] == 'assign-var':
       var = result[2]
       value = interpreter(result[3])
       names[var] = value
       types[var] = type(value).__name__
+
+    if result[1] == 'assign-arr':
+      var = result[2]
+      value = names[var]
+      if result[3] < len(value) and result[3] >= 0:
+        value[result[3]] = result[4]
+        names[var] = value
+      else:
+        print("(Runtime) Error at line %d: Index out of bounds" % result[0])
 
     if result[1] == 'or':
       value1 = interpreter(result[2])
