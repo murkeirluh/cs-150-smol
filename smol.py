@@ -124,6 +124,11 @@ precedence = (
 names = { }
 types = { }
 
+global then_flag
+then_flag = 1
+global else_flag
+else_flag = 1
+
 # start
 # <start> ::= <code-entity>*
 def p_start(p):
@@ -159,28 +164,33 @@ def p_iterative_statement_2(p):
 # <conditional-statement> ::= if <expression> : <start> else <start> endif
 #                           | if <expression> : <start> endif
 def p_conditional_statement_1(p):
-   'conditional_statement : IF expression then_statement else_statement ENDIF'
-   '''if p[2]:
-     p[0] = p[3]
-   else:
-     p[0] = p[4]'''
+   'conditional_statement : IF expression seen_if COLON start seen_start ELSE seen_else start seen_start ENDIF'
 
 def p_conditional_statement_2(p):
-   'conditional_statement : IF expression then_statement ENDIF'
-   #if p[2]:
-   #  p[0] = p[4]
-   #p[0] = If(p[2], p[3], None)
+   'conditional_statement : IF expression seen_if COLON start seen_start ENDIF'
 
-# then statement for conditional statements
-def p_then_statement(p):
-   'then_statement : COLON start'
-   p[0] = p[2]
+# check if expression is true
+# if false, set flag to 0 (prevents symbol table from updating during then statement)
+def p_seen_if(p):
+   'seen_if : '
+   global then_flag
+   if p[-1] == False:
+     then_flag = 0
 
-# else statement for conditional statements
-def p_else_statement(p):
-   'else_statement : ELSE start'
-   p[0] = p[2]
-  
+# check if expression is true for if-then-else statements
+# if true, set flag to 0 (prevents symbol table from updating during else statement)
+def p_seen_else(p):
+   'seen_else : '
+   global then_flag
+   if p[-5] == True:
+     then_flag = 0
+
+# after then and else statements, set flag to 1
+def p_seen_start(p):
+   'seen_start : '
+   global then_flag
+   then_flag = 1
+      
 # expression
 # <expression> ::= <assignment-statement>
 def p_expression(p):
@@ -196,9 +206,10 @@ def p_assignment_statement_1(p):
     
 def p_assignment_statement_2(p):
     'assignment_statement : IDENTIFIER EQUALS or_statement'
-    if type(p[3]).__name__ != 'NoneType':
-      types[p[1]] = type(p[3]).__name__
-      names[p[1]] = p[3]
+    if then_flag == 1 and else_flag == 1:
+      if type(p[3]).__name__ != 'NoneType':
+        types[p[1]] = type(p[3]).__name__
+        names[p[1]] = p[3]
 
 # or statement
 # <or-statement> ::= <and-statement>
