@@ -379,7 +379,7 @@ def p_input_function(p):
     p[0] = (p.lineno(1), 'input', p[3])  
 
 # output function
-# <output-function> ::= print( (“<atom>” | IDENTIFIER) {+ (“<atom>” | IDENTIFIER)+} )
+# <output-function> ::= print( ("<atom>" | IDENTIFIER) {+ ("<atom>" | IDENTIFIER)+} )
 def p_output_function(p):
     'output_function : PRINT LPAREN term RPAREN'
     p[0] = (p.lineno(1), 'output', p[3])
