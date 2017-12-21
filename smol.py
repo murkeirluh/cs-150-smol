@@ -540,13 +540,21 @@ def interpreter(result):
 import ply.yacc as yacc
 parser = yacc.yacc()
 
+import sys as filein
 
-while True:
+if len(filein.argv) == 2:
+  file = open(filein.argv[1])
+  line = file.readline()
+  while (line):
+    line = parser.parse(line)
+    interpreter(line)
+    line = file.readline()
+else:
+  while True:
     try:
         s = input(':: ')   # Use raw_input on Python 2
     except EOFError:
         break
-    if not s: continue
     result = parser.parse(s) #, tracking=True)
     if result != None:
       interpreter(result)
