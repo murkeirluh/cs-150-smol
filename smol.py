@@ -544,11 +544,15 @@ import sys as filein
 
 if len(filein.argv) == 2:
   file = open(filein.argv[1])
-  line = file.readline()
-  while (line):
-    line = parser.parse(line)
-    interpreter(line)
-    line = file.readline()
+  stream = line = file.readline()
+  while (line != 'end'):
+    while line != '\n':
+      line = file.readline()
+      stream = stream + line
+    stream = parser.parse(stream)
+    interpreter(stream)
+    stream = ''
+    stream = line = file.readline()
 else:
   while True:
     try:

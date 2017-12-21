@@ -1,2 +1,15 @@
-a = 1 + 1
+for a = 0, a < 10, a = a + 1:
 print(a)
+endfor
+
+b = 0
+
+if b == 0:
+	c = 5
+else
+	c = 10
+endif
+
+print(c)
+
+end
