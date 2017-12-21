@@ -102,6 +102,7 @@ def t_error(t):
 # Build the lexer
 import ply.lex as lex
 lexer = lex.lex()
+
 '''
 # for debugging purposes
 data = "-1"
@@ -460,7 +461,7 @@ def interpreter(result):
     if result[1] == 'add':
       value1 = interpreter(result[3])
       value2 = interpreter(result[4])
-      if type(value1).__name__ != 'int' and type(value1).__name__ != 'float' and type(value2).__name__ != 'int' and type(value2).__name__ != 'float':
+      if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '+':
           return value1 + value2
         if result[2] == '-':
@@ -471,7 +472,7 @@ def interpreter(result):
     if result[1] == 'multiply':
       value1 = interpreter(result[3])
       value2 = interpreter(result[4])
-      if type(value1).__name__ != 'int' and type(value1).__name__ != 'float' and type(value2).__name__ != 'int' and type(value2).__name__ != 'float':
+      if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '*':
           return value1 * value2
         if result[2] == '/':
@@ -538,6 +539,7 @@ def interpreter(result):
 
 import ply.yacc as yacc
 parser = yacc.yacc()
+
 
 while True:
     try:
