@@ -728,7 +728,13 @@ if len(filein.argv) == 2:
 else: # command line interpreter if no file is entered
   while True:
     try:
-        s = input(':: ')
+        # check for python version run by user
+        # if python version is 3, use input()
+        if filein.version_info[0] == 3:
+            s = input(':: ')
+        # else if python version is 2, use raw_input()
+        elif filein.version_info[0] == 2:
+            s = raw_input(':: ')
     except EOFError:
         break
     result = parser.parse(s)
