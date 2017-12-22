@@ -25,13 +25,14 @@ reserved = {
     'False' : 'FALSE',
     'input' : 'INPUT',
     'print' : 'PRINT',
+    'append' : 'APPEND',
 }
 
 # List of Tokens
 # - names used by the lexer
 tokens = [
     # atoms
-   'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON',
+   'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON','PERIOD',
     # operators
    'AND','OR','NOT',
    'PLUS','MINUS','TIMES','DIVIDE','POWER','MOD',
@@ -48,6 +49,7 @@ tokens = [
 t_STRING = r'\"([^\\\n]|(\\.))*?\"'
 t_COMMA = r'\,'
 t_COLON = r':'
+t_PERIOD = r'\.'
 # operators
 t_AND = r'\&\&'
 t_OR = r'\|\|'
@@ -145,14 +147,16 @@ def p_start2(p):
                     | <conditional-statement>
                     | <expression>
                     | <input-function>
-                    | <output-function> '''
+                    | <output-function>
+                    | <array-append> '''
 
 def p_code_entity(p):
    '''code_entity : iterative_statement
                   | conditional_statement
                   | expression
                   | input_function
-                  | output_function'''
+                  | output_function
+                  | array_append'''
    p[0] = p[1]
    
 ''' iterative statements
@@ -388,6 +392,12 @@ def p_input_function(p):
 def p_output_function(p):
     'output_function : PRINT LPAREN term RPAREN'
     p[0] = (p.lineno(1), 'output', p[3])
+
+def p_array_append(p):
+    '''array_append : IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+                    | IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+                    | IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN'''
+    p[0] = (p.lineno(1), 'append-arr', p[1], p[5])
 
 # error in syntax
 def p_error(p):
@@ -674,6 +684,27 @@ def interpreter(result):
       if value:
         print(value)
 
+    # operation to append elements at end of array
+    # result = (p.lineno(1), 'append-arr', p[1], p[4])
+
+    if result[1] == 'append-arr':
+      if result[2] in names:
+        if names[result[2]] != None:
+          array = names[result[2]]
+        else:
+          array = []
+        if result[3] in names:
+          value = names[result[3]]
+        else:
+          value = result[3]
+        if type(value).__name__ == 'int' or type(value).__name__ == 'float':
+          array.append(value)
+          names[result[2]] = array
+        else:
+          print("(Runtime) Error at line %d: Value not of type 'int' or 'float'" % result[0])
+      else:
+        print("(Syntax) Error at line %d: '%s' not declared" % (result[0], result[2]))
+
 # Build the parser
 import ply.yacc as yacc
 parser = yacc.yacc()
@@ -703,6 +734,9 @@ else: # command line interpreter if no file is entered
     result = parser.parse(s)
     if result != None:
       interpreter(result)
-      if result[1] == 'identifier': # print the value of an identifier
-        if result[2] in names:
-          print(names[result[2]])
+      if result[2][1] == 'identifier': # print the value of an identifier
+        if result[2][2] in names:
+          if names[result[2][2]] != None:
+            print(names[result[2][2]])
+          else:
+            print("[]")
