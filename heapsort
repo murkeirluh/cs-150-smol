@@ -9,13 +9,10 @@ temp = 0
 root = 0
 break = 0
 
-##### start of heapsort #####
-### start heapify ###
 p = len-1
 start = (p-1)/2
 
 while (start >= 0):
-	### start of siftdown ###
 	root = start
 	end = len-1
 	while ((2*root+1) <= end):
@@ -28,7 +25,8 @@ while (start >= 0):
 			s = child+1
 		endif
 		if (s == root): 
-			break
+			break = root
+			root = end
 		else:
 			temp = arr[root]
 			arr[root] = arr[s]
@@ -36,9 +34,8 @@ while (start >= 0):
 			root = s
 		endif
 	endwhile
-	### end of siftdown ###
+
 	start = start - 1
-### end of heapify ###
 
 	end = len-1
 	while (end > 0):
@@ -46,7 +43,7 @@ while (start >= 0):
 		arr[end] = arr[0]
 		arr[0] = temp
 		end = end - 1
-		### start of siftdown ###
+		
 		root = 0
 		while ((2*root+1) <= end):
 			child = 2*root+1
@@ -58,7 +55,8 @@ while (start >= 0):
 				s = child+1
 			endif
 			if (s == root): 
-				break
+				break = root
+				root = end
 			else:
 				temp = arr[root]
 				arr[root] = arr[s]
@@ -68,9 +66,9 @@ while (start >= 0):
 		endwhile
 
 	endwhile
-		### end of siftdown ###
+		
 endwhile
-##### end of heapsort #####
+
 print(arr)
 
 end
