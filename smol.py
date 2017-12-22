@@ -137,8 +137,8 @@ def p_start1(p):
    pass
 
 def p_start2(p):
-   'start : start code_entity'
-   p[0] = p[2]
+   'start : code_entity start'
+   p[0] = (p.lineno(1), 'start', p[1], p[2])
    
 ''' code entity
     <code-entity> ::= <iterative-statement>
@@ -405,6 +405,17 @@ def p_error(p):
 
 def interpreter(result):
 
+    # start
+    # result = (p.lineno(1), 'start', p[1], p[2])
+
+    def docommands(tuple):
+      interpreter(tuple[2])
+      if tuple[3] != None:
+        docommands(tuple[3])
+
+    if result[1] == 'start':
+      docommands(result)
+
     # while statement
     # result = (p.lineno(1), 'while', p[2], p[4])
 
@@ -600,7 +611,7 @@ def interpreter(result):
       return result[2]
 
     # array elements
-    # (p.lineno(1), 'atom-array', p[2])
+    # result = (p.lineno(1), 'atom-array', p[2])
 
     # adding elements to the array
     def addelements(tuple, line):
@@ -613,8 +624,11 @@ def interpreter(result):
 
     if result[1] == 'atom-array':
       array = []
-      addelements(result[2], result[0])
-      return array
+      if result[2] == None:
+        return None
+      else:
+        addelements(result[2], result[0])
+        return array
 
     # getting element at array index
     # result = (p.lineno(1), 'atom-indexing', p[1], p[3])
@@ -677,6 +691,7 @@ if len(filein.argv) == 2:
       line = file.readline()
       stream = stream + line
     stream = parser.parse(stream)
+    print(stream)
     interpreter(stream)
     stream = ''
     stream = line = file.readline()
@@ -688,6 +703,7 @@ else: # command line interpreter if no file is entered
         break
     result = parser.parse(s)
     if result != None:
+      print(result)
       interpreter(result)
       if result[1] == 'identifier': # print the value of an identifier
         if result[2] in names:
