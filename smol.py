@@ -26,6 +26,7 @@ reserved = {
     'input' : 'INPUT',
     'print' : 'PRINT',
     'append' : 'APPEND',
+    'return' : 'RETURN',
 }
 
 # List of Tokens
@@ -125,9 +126,10 @@ precedence = (
     ('right','POWER','NOT'),
     )
 
-# Dictionary of names and data types of each name
-names = { }
-types = { }
+# Symbol tables
+# dictionary of names and data types of each name
+names = { 'return' : ''}
+types = { 'return' : 'None'}
 
 # Grammar rules
 
@@ -393,6 +395,9 @@ def p_output_function(p):
     'output_function : PRINT LPAREN term RPAREN'
     p[0] = (p.lineno(1), 'output', p[3])
 
+''' array append
+    <array-append> ::= IDENTIFIER .append( (INTEGER | FLOAT | IDENTIFIER) ) '''
+
 def p_array_append(p):
     '''array_append : IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
                     | IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
@@ -414,13 +419,16 @@ def p_error(p):
 # and includes actions to take for each grammar rule stated above
 
 def interpreter(result):
+  if result: # don't do anything if empty node is passed
 
     # start
     # result = (p.lineno(1), 'start', p[1], p[2])
+    # p[0] = (p.lineno(1), 'multiple-ent', p[1], p[2])
 
+    # interpreting multiple code entities by order
     def docommands(tuple):
       interpreter(tuple[2])
-      if tuple[3] != None:
+      if tuple[3] != None: # interpret code entities recursively until there are no code entities left
         docommands(tuple[3])
 
     if result[1] == 'start':
@@ -429,9 +437,9 @@ def interpreter(result):
     # while statement
     # result = (p.lineno(1), 'while', p[2], p[4])
 
-    if result[1] == 'while':
+    if result[1] == 'while': # check if while expression is of type 'bool', 'int', 'float'
       if type(interpreter(result[2])).__name__ == 'bool' or type(interpreter(result[2])).__name__ == 'int' or type(interpreter(result[2])).__name__ == 'float':
-        while (interpreter(result[2])):
+        while (interpreter(result[2])): # while loop until while expression is not true
           interpreter(result[3])
       else:
         print("(Syntax) Error at line %d: While expression should be of type 'bool', 'int', 'float'" % result[0])
@@ -440,12 +448,16 @@ def interpreter(result):
     # result = (p.lineno(1), 'for', p[2], p[4], p[6], p[8])
 
     if result[1] == 'for':
-      interpreter(result[2])
-      if type(interpreter(result[3])).__name__ == 'bool' or type(interpreter(result[3])).__name__ == 'int' or type(interpreter(result[3])).__name__ == 'float':
-        while (interpreter(result[3])):
-          interpreter(result[5])
-          interpreter(result[4])
-      else: print("(Syntax) Error at line %d: Second for expression should be of type 'bool', 'int', 'float'" % result[0])
+      if result[2][1] == 'assign-var' or result[2][1] == 'assign-arr': # check if first expression assignment statement
+        interpreter(result[2]) # check if second expression is of type 'bool', 'int', 'float'
+        if type(interpreter(result[3])).__name__ == 'bool' or type(interpreter(result[3])).__name__ == 'int' or type(interpreter(result[3])).__name__ == 'float':
+          while (interpreter(result[3])): # while loop until second expression is not true
+            interpreter(result[5])
+            interpreter(result[4]) # update assigned variable
+        else:
+          print("(Syntax) Error at line %d: Second 'for' expression should be of type 'bool', 'int', 'float'" % result[0])
+      else:
+        print("(Syntax) Error at line %d: First 'for' expression should be an assignment expression" % result[0])
 
     # if-then-else statement
     # result = (p.lineno(1), 'if', p[2], p[4], p[6])
@@ -453,12 +465,12 @@ def interpreter(result):
     # result = (p.lineno(1), 'if', p[2], p[4])
 
     if result[1] == 'if':
-      value = interpreter(result[2])
+      value = interpreter(result[2]) # check if if expression is of type 'bool', 'int', 'float'
       if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
-        if value == True:
+        if value == True: # execute if if expression is true
           interpreter(result[3])
         else:
-          if len(result) == 5:
+          if len(result) == 5: # do nothing if there is no else statement, otherwise execute else statement
             interpreter(result[4])
       else:
         print("(Syntax) Error at line %d: While expression should be of type 'bool', 'int', 'float'" % result[0])
@@ -470,23 +482,26 @@ def interpreter(result):
       var = result[2]
       value = interpreter(result[3])
       names[var] = value
-      types[var] = type(value).__name__
+      types[var] = type(value).__name__ # update symbol tables
 
     # replace an array element
     # result = (p.lineno(2), 'assign-arr', p[1], p[3], p[6])
 
-    if result[1] == 'assign-arr': # fix errors here
-      if result[3] in names:
+    if result[1] == 'assign-arr':
+      if result[3] in names: # check if index is variable
         index = names[result[3]]
       else:
-        index = result[3] # check if index is int
-      if type(index).__name__ == 'int':
+        index = result[3]
+      if type(index).__name__ == 'int': # check if index is type int
         var = result[2]
-        if var in names:
+        if var in names: # check if array is declared
           value = names[var]
-          if index < len(value) and index >= 0:
-            value[index] = result[4]
-            names[var] = value
+          if index < len(value) and index >= 0: # check if 0 < index < arraylength
+            if type(result[4]).__name__ == 'int' or type(result[4]).__name__ == 'float': # check if new value is type int or float
+              value[index] = result[4]
+              names[var] = value
+            else:
+              print("(Runtime) Error at line %d: Value not of type 'int' or 'float'" % result[0])
           else:
             print("(Runtime) Error at line %d: Index out of bounds" % result[0])
         else:
@@ -499,45 +514,45 @@ def interpreter(result):
 
     if result[1] == 'or':
       value1 = interpreter(result[2])
-      value2 = intepreter(result[3])
+      value2 = intepreter(result[3]) # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         return value1 or value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '||' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
     # and statement
     # result = (p.lineno(2), 'and', p[1], p[3])
 
     if result[1] == 'and':
       value1 = interpreter(result[2])
-      value2 = intepreter(result[3])
+      value2 = intepreter(result[3]) # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         return value1 and value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '&&' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
     # equality statement
     # result = (p.lineno(2), 'equality', p[2], p[1], p[3])
 
     if result[1] == 'equality':
       value1 = interpreter(result[3])
-      value2 = interpreter(result[4])
+      value2 = interpreter(result[4]) # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
-        if result[2] == '==':
+        if result[2] == '==': # check which operation to execute
           return value1 == value2
         if result[2] == '!=':
           return value1 != value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
     # relational statement
     # result = (p.lineno(2), 'relational', p[2], p[1], p[3])
 
     if result[1] == 'relational':
       value1 = interpreter(result[3])
-      value2 = interpreter(result[4])
+      value2 = interpreter(result[4]) # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
-        if result[2] == '<':
+        if result[2] == '<': # check which operation to execute
           return value1 < value2
         if result[2] == '>':
           return value1 > value2
@@ -546,53 +561,53 @@ def interpreter(result):
         if result[2] == '>=':
           return value1 >= value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
     # add statement
     # result = (p.lineno(2), 'add', p[2], p[1], p[3])
 
     if result[1] == 'add':
       value1 = interpreter(result[3])
-      value2 = interpreter(result[4])
+      value2 = interpreter(result[4]) # check if operands are not invalid types (list and none)
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
-        if result[2] == '+':
+        if result[2] == '+': # check which operation to execute
           return value1 + value2
         if result[2] == '-':
           return value1 - value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
     # multiply statement
     # result = (p.lineno(2), 'multiply', p[2], p[1], p[3])
 
     if result[1] == 'multiply':
       value1 = interpreter(result[3])
-      value2 = interpreter(result[4])
+      value2 = interpreter(result[4]) # check if operands are valid types (int and float)
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
-        if result[2] == '*':
+        if result[2] == '*': # check which operation to execute
           return value1 * value2
         if result[2] == '/':
           return value1 / value2
         if result[2] == '%':
           return value1 % value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
     # unary statement
     # result = (p.lineno(1), 'unary', p[1], p[2])
 
     if result[1] == 'unary':
       value = interpreter(result[3])
-      if result[2] == '-':
-        if type(value).__name__ == 'int':
+      if result[2] == '-': # check which operation to execute
+        if type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if operand is of valid type (int and float)
           return -value
         else:
-          print("(Runtime) Error at line %d: Incompatible type '%s'" % (result[0], type(value).__name__))
+          print("(Runtime) Error at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
       if result[2] == '!':
-        if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
+        if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if operand is of valid type (bool, int, and float)
           return not value
         else:
-          print("(Runtime) Error at line %d: Incompatible type '%s'" % (result[0], type(value).__name__))
+          print("(Runtime) Error at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
 
     # exponents
     # result = (p.lineno(2), 'exponent', p[1], p[3])
@@ -603,7 +618,7 @@ def interpreter(result):
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         return value1 ** value2
       else:
-        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s'" % (result[0], type(value1).__name__, type(value2).__name__))
+        print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '^' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
     # identifier
     # result = (p.lineno(1), 'identifier', p[1])
@@ -618,6 +633,7 @@ def interpreter(result):
     # result = (p.lineno(1), 'atom', p[1])
 
     if result[1] == 'atom':
+      names['return'] = result[2]
       return result[2]
 
     # array elements
@@ -635,9 +651,10 @@ def interpreter(result):
     if result[1] == 'atom-array':
       array = []
       if result[2] == None:
-        return None
+        return array
       else:
         addelements(result[2], result[0])
+        names['return'] = array
         return array
 
     # getting element at array index
@@ -666,13 +683,13 @@ def interpreter(result):
     if result[1] == 'input':
       if result[2] in types:
         inp = input()
-        inp = interpreter(parser.parse(inp))
-        if type(inp).__name__ == types[result[2]]:
+        interpreter(parser.parse(inp))
+        if type(names['return']).__name__ == types[result[2]]:
           if result[2] in names:
             del names[result[2]]
-          names[result[2]] = inp
+          names[result[2]] = names['return']
         else:
-          print("(Runtime) Error at line %d: '%s' is not of type '%s'" % (result[0], inp, types[result[2]]))
+          print("(Runtime) Error at line %d: '%s' is not of type '%s'" % (result[0], names['return'], types[result[2]]))
       else:
         print("(Syntax) Error at line %d: '%s' not declared" % (result[0], result[2]))
 
@@ -681,6 +698,7 @@ def interpreter(result):
 
     if result[1] == 'output':
       value = interpreter(result[2])
+      value = str(value)
       if value:
         print(value)
 
