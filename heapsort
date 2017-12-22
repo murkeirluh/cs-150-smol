@@ -1,0 +1,76 @@
+arr = [9 8 7 6 5]
+print(arr)
+
+len = 5
+start = 0
+end = 0
+child = 0
+temp = 0
+root = 0
+break = 0
+
+##### start of heapsort #####
+### start heapify ###
+p = len-1
+start = (p-1)/2
+
+while (start >= 0):
+	### start of siftdown ###
+	root = start
+	end = len-1
+	while ((2*root+1) <= end):
+		child = 2*root+1
+		s = root
+		if (arr[s] < arr[child]):
+			s = child
+		endif
+		if (child+1 <= end && arr[s] < arr[child+1]):
+			s = child+1
+		endif
+		if (s == root): 
+			break
+		else:
+			temp = arr[root]
+			arr[root] = arr[s]
+			arr[s] = temp
+			root = s
+		endif
+	endwhile
+	### end of siftdown ###
+	start = start - 1
+### end of heapify ###
+
+	end = len-1
+	while (end > 0):
+		temp = arr[end]
+		arr[end] = arr[0]
+		arr[0] = temp
+		end = end - 1
+		### start of siftdown ###
+		root = 0
+		while ((2*root+1) <= end):
+			child = 2*root+1
+			s = root
+			if (arr[s] < arr[child]):
+				s = child
+			endif
+			if (child+1 <= end && arr[s] < arr[child+1]):
+				s = child+1
+			endif
+			if (s == root): 
+				break
+			else:
+				temp = arr[root]
+				arr[root] = arr[s]
+				arr[s] = temp
+				root = s
+			endif
+		endwhile
+
+	endwhile
+		### end of siftdown ###
+endwhile
+##### end of heapsort #####
+print(arr)
+
+end
