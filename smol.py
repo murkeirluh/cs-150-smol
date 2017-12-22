@@ -691,7 +691,6 @@ if len(filein.argv) == 2:
       line = file.readline()
       stream = stream + line
     stream = parser.parse(stream)
-    print(stream)
     interpreter(stream)
     stream = ''
     stream = line = file.readline()
@@ -703,7 +702,6 @@ else: # command line interpreter if no file is entered
         break
     result = parser.parse(s)
     if result != None:
-      print(result)
       interpreter(result)
       if result[1] == 'identifier': # print the value of an identifier
         if result[2] in names:
