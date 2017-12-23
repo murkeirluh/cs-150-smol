@@ -56,19 +56,18 @@ Rule 50    atom -> FALSE
 Rule 51    atom -> LBRACKET elements RBRACKET
 Rule 52    atom -> IDENTIFIER LBRACKET INTEGER RBRACKET
 Rule 53    atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET
-Rule 54    elements -> elements INTEGER
-Rule 55    elements -> elements FLOAT
-Rule 56    elements -> <empty>
-Rule 57    input_function -> INPUT LPAREN IDENTIFIER RPAREN
-Rule 58    output_function -> PRINT LPAREN term RPAREN
-Rule 59    array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-Rule 60    array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-Rule 61    array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+Rule 54    elements -> elements unary_statement
+Rule 55    elements -> <empty>
+Rule 56    input_function -> INPUT LPAREN IDENTIFIER RPAREN
+Rule 57    output_function -> PRINT LPAREN term RPAREN
+Rule 58    array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+Rule 59    array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+Rule 60    array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
 
 Terminals, with rules where they appear
 
 AND                  : 21
-APPEND               : 59 60 61
+APPEND               : 58 59 60
 COLON                : 9 10 11 11 12
 COMMA                : 10 10
 DIVIDE               : 35
@@ -79,17 +78,17 @@ ENDWHILE             : 9
 EQ                   : 23
 EQUALS               : 15 16 17
 FALSE                : 50
-FLOAT                : 47 55 60
+FLOAT                : 47 59
 FLRDIV               : 36
 FOR                  : 10
 GT                   : 27
 GTEQ                 : 29
-IDENTIFIER           : 15 16 17 17 43 52 53 53 57 59 60 61 61
+IDENTIFIER           : 15 16 17 17 43 52 53 53 56 58 59 60 60
 IF                   : 11 12
-INPUT                : 57
-INTEGER              : 16 46 52 54 59
+INPUT                : 56
+INTEGER              : 16 46 52 58
 LBRACKET             : 16 17 51 52 53
-LPAREN               : 45 57 58 59 60 61
+LPAREN               : 45 56 57 58 59 60
 LT                   : 26
 LTEQ                 : 28
 MINUS                : 32 39
@@ -97,12 +96,12 @@ MOD                  : 37
 NEQ                  : 24
 NOT                  : 40
 OR                   : 19
-PERIOD               : 59 60 61
+PERIOD               : 58 59 60
 PLUS                 : 31
 POWER                : 42
-PRINT                : 58
+PRINT                : 57
 RBRACKET             : 16 17 51 52 53
-RPAREN               : 45 57 58 59 60 61
+RPAREN               : 45 56 57 58 59 60
 STRING               : 48
 TIMES                : 34
 TRUE                 : 49
@@ -118,7 +117,7 @@ assignment_statement : 10 10 13
 atom                 : 44
 code_entity          : 2
 conditional_statement : 4
-elements             : 51 54 55
+elements             : 51 54
 equality_statement   : 20 21 23 24
 exponent             : 38
 expression           : 5
@@ -129,8 +128,8 @@ or_statement         : 9 10 11 12 14 15 16 17 19 45
 output_function      : 7
 relational_statement : 22 23 24 26 27 28 29
 start                : 2 9 10 11 11 12 0
-term                 : 41 42 58
-unary_statement      : 33 34 35 36 37 39 40 42
+term                 : 41 42 57
+unary_statement      : 33 34 35 36 37 39 40 42 54
 
 Parsing method: LALR
 
@@ -150,11 +149,11 @@ state 0
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -255,11 +254,11 @@ state 2
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -748,7 +747,7 @@ state 13
 
 state 14
 
-    (57) input_function -> INPUT . LPAREN IDENTIFIER RPAREN
+    (56) input_function -> INPUT . LPAREN IDENTIFIER RPAREN
 
     LPAREN          shift and go to state 42
 
@@ -817,9 +816,9 @@ state 15
 
 state 16
 
-    (59) array_append -> IDENTIFIER . PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> IDENTIFIER . PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> IDENTIFIER . PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (58) array_append -> IDENTIFIER . PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> IDENTIFIER . PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> IDENTIFIER . PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (15) assignment_statement -> IDENTIFIER . EQUALS or_statement
     (16) assignment_statement -> IDENTIFIER . LBRACKET INTEGER RBRACKET EQUALS or_statement
     (17) assignment_statement -> IDENTIFIER . LBRACKET IDENTIFIER RBRACKET EQUALS or_statement
@@ -870,7 +869,7 @@ state 16
 
 state 17
 
-    (58) output_function -> PRINT . LPAREN term RPAREN
+    (57) output_function -> PRINT . LPAREN term RPAREN
 
     LPAREN          shift and go to state 47
 
@@ -916,6 +915,7 @@ state 18
     COLON           reduce using rule 41 (exponent -> term .)
     COMMA           reduce using rule 41 (exponent -> term .)
     RPAREN          reduce using rule 41 (exponent -> term .)
+    RBRACKET        reduce using rule 41 (exponent -> term .)
     POWER           shift and go to state 48
 
 
@@ -960,6 +960,7 @@ state 19
     COLON           reduce using rule 46 (atom -> INTEGER .)
     COMMA           reduce using rule 46 (atom -> INTEGER .)
     RPAREN          reduce using rule 46 (atom -> INTEGER .)
+    RBRACKET        reduce using rule 46 (atom -> INTEGER .)
 
 
 state 20
@@ -1003,18 +1004,26 @@ state 20
     COLON           reduce using rule 47 (atom -> FLOAT .)
     COMMA           reduce using rule 47 (atom -> FLOAT .)
     RPAREN          reduce using rule 47 (atom -> FLOAT .)
+    RBRACKET        reduce using rule 47 (atom -> FLOAT .)
 
 
 state 21
 
     (51) atom -> LBRACKET . elements RBRACKET
-    (54) elements -> . elements INTEGER
-    (55) elements -> . elements FLOAT
-    (56) elements -> .
+    (54) elements -> . elements unary_statement
+    (55) elements -> .
 
-    RBRACKET        reduce using rule 56 (elements -> .)
-    INTEGER         reduce using rule 56 (elements -> .)
-    FLOAT           reduce using rule 56 (elements -> .)
+    RBRACKET        reduce using rule 55 (elements -> .)
+    MINUS           reduce using rule 55 (elements -> .)
+    NOT             reduce using rule 55 (elements -> .)
+    IDENTIFIER      reduce using rule 55 (elements -> .)
+    LPAREN          reduce using rule 55 (elements -> .)
+    INTEGER         reduce using rule 55 (elements -> .)
+    FLOAT           reduce using rule 55 (elements -> .)
+    STRING          reduce using rule 55 (elements -> .)
+    TRUE            reduce using rule 55 (elements -> .)
+    FALSE           reduce using rule 55 (elements -> .)
+    LBRACKET        reduce using rule 55 (elements -> .)
 
     elements                       shift and go to state 49
 
@@ -1333,6 +1342,7 @@ state 29
     COLON           reduce using rule 38 (unary_statement -> exponent .)
     COMMA           reduce using rule 38 (unary_statement -> exponent .)
     RPAREN          reduce using rule 38 (unary_statement -> exponent .)
+    RBRACKET        reduce using rule 38 (unary_statement -> exponent .)
 
 
 state 30
@@ -1412,6 +1422,7 @@ state 31
     COLON           reduce using rule 44 (term -> atom .)
     COMMA           reduce using rule 44 (term -> atom .)
     RPAREN          reduce using rule 44 (term -> atom .)
+    RBRACKET        reduce using rule 44 (term -> atom .)
 
 
 state 32
@@ -1455,6 +1466,7 @@ state 32
     COLON           reduce using rule 48 (atom -> STRING .)
     COMMA           reduce using rule 48 (atom -> STRING .)
     RPAREN          reduce using rule 48 (atom -> STRING .)
+    RBRACKET        reduce using rule 48 (atom -> STRING .)
 
 
 state 33
@@ -1498,6 +1510,7 @@ state 33
     COLON           reduce using rule 49 (atom -> TRUE .)
     COMMA           reduce using rule 49 (atom -> TRUE .)
     RPAREN          reduce using rule 49 (atom -> TRUE .)
+    RBRACKET        reduce using rule 49 (atom -> TRUE .)
 
 
 state 34
@@ -1541,6 +1554,7 @@ state 34
     COLON           reduce using rule 50 (atom -> FALSE .)
     COMMA           reduce using rule 50 (atom -> FALSE .)
     RPAREN          reduce using rule 50 (atom -> FALSE .)
+    RBRACKET        reduce using rule 50 (atom -> FALSE .)
 
 
 state 35
@@ -1606,6 +1620,7 @@ state 37
     ENDIF           reduce using rule 43 (term -> IDENTIFIER .)
     ENDFOR          reduce using rule 43 (term -> IDENTIFIER .)
     COMMA           reduce using rule 43 (term -> IDENTIFIER .)
+    RBRACKET        reduce using rule 43 (term -> IDENTIFIER .)
     LBRACKET        shift and go to state 66
 
   ! LBRACKET        [ reduce using rule 43 (term -> IDENTIFIER .) ]
@@ -1719,7 +1734,7 @@ state 41
 
 state 42
 
-    (57) input_function -> INPUT LPAREN . IDENTIFIER RPAREN
+    (56) input_function -> INPUT LPAREN . IDENTIFIER RPAREN
 
     IDENTIFIER      shift and go to state 70
 
@@ -1735,9 +1750,9 @@ state 43
 
 state 44
 
-    (59) array_append -> IDENTIFIER PERIOD . APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> IDENTIFIER PERIOD . APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> IDENTIFIER PERIOD . APPEND LPAREN IDENTIFIER RPAREN
+    (58) array_append -> IDENTIFIER PERIOD . APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> IDENTIFIER PERIOD . APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> IDENTIFIER PERIOD . APPEND LPAREN IDENTIFIER RPAREN
 
     APPEND          shift and go to state 72
 
@@ -1817,7 +1832,7 @@ state 46
 
 state 47
 
-    (58) output_function -> PRINT LPAREN . term RPAREN
+    (57) output_function -> PRINT LPAREN . term RPAREN
     (43) term -> . IDENTIFIER
     (44) term -> . atom
     (45) term -> . LPAREN or_statement RPAREN
@@ -1881,13 +1896,40 @@ state 48
 state 49
 
     (51) atom -> LBRACKET elements . RBRACKET
-    (54) elements -> elements . INTEGER
-    (55) elements -> elements . FLOAT
+    (54) elements -> elements . unary_statement
+    (38) unary_statement -> . exponent
+    (39) unary_statement -> . MINUS unary_statement
+    (40) unary_statement -> . NOT unary_statement
+    (41) exponent -> . term
+    (42) exponent -> . term POWER unary_statement
+    (43) term -> . IDENTIFIER
+    (44) term -> . atom
+    (45) term -> . LPAREN or_statement RPAREN
+    (46) atom -> . INTEGER
+    (47) atom -> . FLOAT
+    (48) atom -> . STRING
+    (49) atom -> . TRUE
+    (50) atom -> . FALSE
+    (51) atom -> . LBRACKET elements RBRACKET
+    (52) atom -> . IDENTIFIER LBRACKET INTEGER RBRACKET
+    (53) atom -> . IDENTIFIER LBRACKET IDENTIFIER RBRACKET
 
     RBRACKET        shift and go to state 78
-    INTEGER         shift and go to state 79
-    FLOAT           shift and go to state 80
+    MINUS           shift and go to state 27
+    NOT             shift and go to state 30
+    IDENTIFIER      shift and go to state 37
+    LPAREN          shift and go to state 15
+    INTEGER         shift and go to state 19
+    FLOAT           shift and go to state 20
+    STRING          shift and go to state 32
+    TRUE            shift and go to state 33
+    FALSE           shift and go to state 34
+    LBRACKET        shift and go to state 21
 
+    unary_statement                shift and go to state 79
+    exponent                       shift and go to state 29
+    term                           shift and go to state 18
+    atom                           shift and go to state 31
 
 state 50
 
@@ -1936,7 +1978,7 @@ state 50
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    equality_statement             shift and go to state 81
+    equality_statement             shift and go to state 80
     relational_statement           shift and go to state 24
     add_statement                  shift and go to state 25
     multiply_statement             shift and go to state 26
@@ -1989,7 +2031,7 @@ state 51
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    relational_statement           shift and go to state 82
+    relational_statement           shift and go to state 81
     add_statement                  shift and go to state 25
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
@@ -2041,7 +2083,7 @@ state 52
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    relational_statement           shift and go to state 83
+    relational_statement           shift and go to state 82
     add_statement                  shift and go to state 25
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
@@ -2088,7 +2130,7 @@ state 53
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    add_statement                  shift and go to state 84
+    add_statement                  shift and go to state 83
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
@@ -2134,7 +2176,7 @@ state 54
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    add_statement                  shift and go to state 85
+    add_statement                  shift and go to state 84
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
@@ -2180,7 +2222,7 @@ state 55
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    add_statement                  shift and go to state 86
+    add_statement                  shift and go to state 85
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
@@ -2226,7 +2268,7 @@ state 56
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    add_statement                  shift and go to state 87
+    add_statement                  shift and go to state 86
     multiply_statement             shift and go to state 26
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
@@ -2269,7 +2311,7 @@ state 57
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    multiply_statement             shift and go to state 88
+    multiply_statement             shift and go to state 87
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
     term                           shift and go to state 18
@@ -2311,7 +2353,7 @@ state 58
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    multiply_statement             shift and go to state 89
+    multiply_statement             shift and go to state 88
     unary_statement                shift and go to state 28
     exponent                       shift and go to state 29
     term                           shift and go to state 18
@@ -2348,7 +2390,7 @@ state 59
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    unary_statement                shift and go to state 90
+    unary_statement                shift and go to state 89
     exponent                       shift and go to state 29
     term                           shift and go to state 18
     atom                           shift and go to state 31
@@ -2384,7 +2426,7 @@ state 60
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    unary_statement                shift and go to state 91
+    unary_statement                shift and go to state 90
     exponent                       shift and go to state 29
     term                           shift and go to state 18
     atom                           shift and go to state 31
@@ -2420,7 +2462,7 @@ state 61
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    unary_statement                shift and go to state 92
+    unary_statement                shift and go to state 91
     exponent                       shift and go to state 29
     term                           shift and go to state 18
     atom                           shift and go to state 31
@@ -2456,7 +2498,7 @@ state 62
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    unary_statement                shift and go to state 93
+    unary_statement                shift and go to state 92
     exponent                       shift and go to state 29
     term                           shift and go to state 18
     atom                           shift and go to state 31
@@ -2501,6 +2543,7 @@ state 63
     COLON           reduce using rule 39 (unary_statement -> MINUS unary_statement .)
     COMMA           reduce using rule 39 (unary_statement -> MINUS unary_statement .)
     RPAREN          reduce using rule 39 (unary_statement -> MINUS unary_statement .)
+    RBRACKET        reduce using rule 39 (unary_statement -> MINUS unary_statement .)
 
 
 state 64
@@ -2543,6 +2586,7 @@ state 64
     COLON           reduce using rule 40 (unary_statement -> NOT unary_statement .)
     COMMA           reduce using rule 40 (unary_statement -> NOT unary_statement .)
     RPAREN          reduce using rule 40 (unary_statement -> NOT unary_statement .)
+    RBRACKET        reduce using rule 40 (unary_statement -> NOT unary_statement .)
 
 
 state 65
@@ -2561,11 +2605,11 @@ state 65
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -2625,7 +2669,7 @@ state 65
     LBRACKET        shift and go to state 21
 
     or_statement                   shift and go to state 10
-    start                          shift and go to state 94
+    start                          shift and go to state 93
     code_entity                    shift and go to state 2
     iterative_statement            shift and go to state 3
     conditional_statement          shift and go to state 4
@@ -2649,8 +2693,8 @@ state 66
     (52) atom -> IDENTIFIER LBRACKET . INTEGER RBRACKET
     (53) atom -> IDENTIFIER LBRACKET . IDENTIFIER RBRACKET
 
-    INTEGER         shift and go to state 96
-    IDENTIFIER      shift and go to state 95
+    INTEGER         shift and go to state 95
+    IDENTIFIER      shift and go to state 94
 
 
 state 67
@@ -2736,7 +2780,7 @@ state 68
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    or_statement                   shift and go to state 97
+    or_statement                   shift and go to state 96
     and_statement                  shift and go to state 22
     equality_statement             shift and go to state 23
     relational_statement           shift and go to state 24
@@ -2764,11 +2808,11 @@ state 69
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -2829,7 +2873,7 @@ state 69
     LBRACKET        shift and go to state 21
 
     or_statement                   shift and go to state 10
-    start                          shift and go to state 98
+    start                          shift and go to state 97
     code_entity                    shift and go to state 2
     iterative_statement            shift and go to state 3
     conditional_statement          shift and go to state 4
@@ -2850,9 +2894,9 @@ state 69
 
 state 70
 
-    (57) input_function -> INPUT LPAREN IDENTIFIER . RPAREN
+    (56) input_function -> INPUT LPAREN IDENTIFIER . RPAREN
 
-    RPAREN          shift and go to state 99
+    RPAREN          shift and go to state 98
 
 
 state 71
@@ -2896,15 +2940,16 @@ state 71
     COLON           reduce using rule 45 (term -> LPAREN or_statement RPAREN .)
     COMMA           reduce using rule 45 (term -> LPAREN or_statement RPAREN .)
     RPAREN          reduce using rule 45 (term -> LPAREN or_statement RPAREN .)
+    RBRACKET        reduce using rule 45 (term -> LPAREN or_statement RPAREN .)
 
 
 state 72
 
-    (59) array_append -> IDENTIFIER PERIOD APPEND . LPAREN INTEGER RPAREN
-    (60) array_append -> IDENTIFIER PERIOD APPEND . LPAREN FLOAT RPAREN
-    (61) array_append -> IDENTIFIER PERIOD APPEND . LPAREN IDENTIFIER RPAREN
+    (58) array_append -> IDENTIFIER PERIOD APPEND . LPAREN INTEGER RPAREN
+    (59) array_append -> IDENTIFIER PERIOD APPEND . LPAREN FLOAT RPAREN
+    (60) array_append -> IDENTIFIER PERIOD APPEND . LPAREN IDENTIFIER RPAREN
 
-    LPAREN          shift and go to state 100
+    LPAREN          shift and go to state 99
 
 
 state 73
@@ -2942,7 +2987,7 @@ state 74
     (17) assignment_statement -> IDENTIFIER LBRACKET IDENTIFIER . RBRACKET EQUALS or_statement
     (53) atom -> IDENTIFIER LBRACKET IDENTIFIER . RBRACKET
 
-    RBRACKET        shift and go to state 101
+    RBRACKET        shift and go to state 100
 
 
 state 75
@@ -2950,14 +2995,14 @@ state 75
     (16) assignment_statement -> IDENTIFIER LBRACKET INTEGER . RBRACKET EQUALS or_statement
     (52) atom -> IDENTIFIER LBRACKET INTEGER . RBRACKET
 
-    RBRACKET        shift and go to state 102
+    RBRACKET        shift and go to state 101
 
 
 state 76
 
-    (58) output_function -> PRINT LPAREN term . RPAREN
+    (57) output_function -> PRINT LPAREN term . RPAREN
 
-    RPAREN          shift and go to state 103
+    RPAREN          shift and go to state 102
 
 
 state 77
@@ -3000,6 +3045,7 @@ state 77
     COLON           reduce using rule 42 (exponent -> term POWER unary_statement .)
     COMMA           reduce using rule 42 (exponent -> term POWER unary_statement .)
     RPAREN          reduce using rule 42 (exponent -> term POWER unary_statement .)
+    RBRACKET        reduce using rule 42 (exponent -> term POWER unary_statement .)
 
 
 state 78
@@ -3043,27 +3089,27 @@ state 78
     COLON           reduce using rule 51 (atom -> LBRACKET elements RBRACKET .)
     COMMA           reduce using rule 51 (atom -> LBRACKET elements RBRACKET .)
     RPAREN          reduce using rule 51 (atom -> LBRACKET elements RBRACKET .)
+    RBRACKET        reduce using rule 51 (atom -> LBRACKET elements RBRACKET .)
 
 
 state 79
 
-    (54) elements -> elements INTEGER .
+    (54) elements -> elements unary_statement .
 
-    RBRACKET        reduce using rule 54 (elements -> elements INTEGER .)
-    INTEGER         reduce using rule 54 (elements -> elements INTEGER .)
-    FLOAT           reduce using rule 54 (elements -> elements INTEGER .)
+    RBRACKET        reduce using rule 54 (elements -> elements unary_statement .)
+    MINUS           reduce using rule 54 (elements -> elements unary_statement .)
+    NOT             reduce using rule 54 (elements -> elements unary_statement .)
+    IDENTIFIER      reduce using rule 54 (elements -> elements unary_statement .)
+    LPAREN          reduce using rule 54 (elements -> elements unary_statement .)
+    INTEGER         reduce using rule 54 (elements -> elements unary_statement .)
+    FLOAT           reduce using rule 54 (elements -> elements unary_statement .)
+    STRING          reduce using rule 54 (elements -> elements unary_statement .)
+    TRUE            reduce using rule 54 (elements -> elements unary_statement .)
+    FALSE           reduce using rule 54 (elements -> elements unary_statement .)
+    LBRACKET        reduce using rule 54 (elements -> elements unary_statement .)
 
 
 state 80
-
-    (55) elements -> elements FLOAT .
-
-    RBRACKET        reduce using rule 55 (elements -> elements FLOAT .)
-    INTEGER         reduce using rule 55 (elements -> elements FLOAT .)
-    FLOAT           reduce using rule 55 (elements -> elements FLOAT .)
-
-
-state 81
 
     (21) and_statement -> and_statement AND equality_statement .
     (23) equality_statement -> equality_statement . EQ relational_statement
@@ -3098,7 +3144,7 @@ state 81
     NEQ             shift and go to state 52
 
 
-state 82
+state 81
 
     (23) equality_statement -> equality_statement EQ relational_statement .
     (26) relational_statement -> relational_statement . LT add_statement
@@ -3139,7 +3185,7 @@ state 82
     GTEQ            shift and go to state 56
 
 
-state 83
+state 82
 
     (24) equality_statement -> equality_statement NEQ relational_statement .
     (26) relational_statement -> relational_statement . LT add_statement
@@ -3180,7 +3226,7 @@ state 83
     GTEQ            shift and go to state 56
 
 
-state 84
+state 83
 
     (26) relational_statement -> relational_statement LT add_statement .
     (31) add_statement -> add_statement . PLUS multiply_statement
@@ -3223,7 +3269,7 @@ state 84
   ! MINUS           [ reduce using rule 26 (relational_statement -> relational_statement LT add_statement .) ]
 
 
-state 85
+state 84
 
     (27) relational_statement -> relational_statement GT add_statement .
     (31) add_statement -> add_statement . PLUS multiply_statement
@@ -3266,7 +3312,7 @@ state 85
   ! MINUS           [ reduce using rule 27 (relational_statement -> relational_statement GT add_statement .) ]
 
 
-state 86
+state 85
 
     (28) relational_statement -> relational_statement LTEQ add_statement .
     (31) add_statement -> add_statement . PLUS multiply_statement
@@ -3309,7 +3355,7 @@ state 86
   ! MINUS           [ reduce using rule 28 (relational_statement -> relational_statement LTEQ add_statement .) ]
 
 
-state 87
+state 86
 
     (29) relational_statement -> relational_statement GTEQ add_statement .
     (31) add_statement -> add_statement . PLUS multiply_statement
@@ -3352,7 +3398,7 @@ state 87
   ! MINUS           [ reduce using rule 29 (relational_statement -> relational_statement GTEQ add_statement .) ]
 
 
-state 88
+state 87
 
     (31) add_statement -> add_statement PLUS multiply_statement .
     (34) multiply_statement -> multiply_statement . TIMES unary_statement
@@ -3398,7 +3444,7 @@ state 88
     MOD             shift and go to state 62
 
 
-state 89
+state 88
 
     (32) add_statement -> add_statement MINUS multiply_statement .
     (34) multiply_statement -> multiply_statement . TIMES unary_statement
@@ -3444,7 +3490,7 @@ state 89
     MOD             shift and go to state 62
 
 
-state 90
+state 89
 
     (34) multiply_statement -> multiply_statement TIMES unary_statement .
 
@@ -3486,7 +3532,7 @@ state 90
     RPAREN          reduce using rule 34 (multiply_statement -> multiply_statement TIMES unary_statement .)
 
 
-state 91
+state 90
 
     (35) multiply_statement -> multiply_statement DIVIDE unary_statement .
 
@@ -3528,7 +3574,7 @@ state 91
     RPAREN          reduce using rule 35 (multiply_statement -> multiply_statement DIVIDE unary_statement .)
 
 
-state 92
+state 91
 
     (36) multiply_statement -> multiply_statement FLRDIV unary_statement .
 
@@ -3570,7 +3616,7 @@ state 92
     RPAREN          reduce using rule 36 (multiply_statement -> multiply_statement FLRDIV unary_statement .)
 
 
-state 93
+state 92
 
     (37) multiply_statement -> multiply_statement MOD unary_statement .
 
@@ -3612,88 +3658,88 @@ state 93
     RPAREN          reduce using rule 37 (multiply_statement -> multiply_statement MOD unary_statement .)
 
 
-state 94
+state 93
 
     (9) iterative_statement -> WHILE or_statement COLON start . ENDWHILE
 
-    ENDWHILE        shift and go to state 104
+    ENDWHILE        shift and go to state 103
+
+
+state 94
+
+    (53) atom -> IDENTIFIER LBRACKET IDENTIFIER . RBRACKET
+
+    RBRACKET        shift and go to state 104
 
 
 state 95
 
-    (53) atom -> IDENTIFIER LBRACKET IDENTIFIER . RBRACKET
+    (52) atom -> IDENTIFIER LBRACKET INTEGER . RBRACKET
 
     RBRACKET        shift and go to state 105
 
 
 state 96
 
-    (52) atom -> IDENTIFIER LBRACKET INTEGER . RBRACKET
+    (10) iterative_statement -> FOR assignment_statement COMMA or_statement . COMMA assignment_statement COLON start ENDFOR
+    (19) or_statement -> or_statement . OR and_statement
 
-    RBRACKET        shift and go to state 106
+    COMMA           shift and go to state 106
+    OR              shift and go to state 38
 
 
 state 97
 
-    (10) iterative_statement -> FOR assignment_statement COMMA or_statement . COMMA assignment_statement COLON start ENDFOR
-    (19) or_statement -> or_statement . OR and_statement
+    (11) conditional_statement -> IF or_statement COLON start . ELSE COLON start ENDIF
+    (12) conditional_statement -> IF or_statement COLON start . ENDIF
 
-    COMMA           shift and go to state 107
-    OR              shift and go to state 38
+    ELSE            shift and go to state 107
+    ENDIF           shift and go to state 108
 
 
 state 98
 
-    (11) conditional_statement -> IF or_statement COLON start . ELSE COLON start ENDIF
-    (12) conditional_statement -> IF or_statement COLON start . ENDIF
+    (56) input_function -> INPUT LPAREN IDENTIFIER RPAREN .
 
-    ELSE            shift and go to state 108
-    ENDIF           shift and go to state 109
+    WHILE           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    FOR             reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    IF              reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    INPUT           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    PRINT           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    IDENTIFIER      reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    MINUS           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    NOT             reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    LPAREN          reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    INTEGER         reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    FLOAT           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    STRING          reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    TRUE            reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    FALSE           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    LBRACKET        reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    $end            reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    ENDWHILE        reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    ELSE            reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    ENDIF           reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    ENDFOR          reduce using rule 56 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
 
 
 state 99
 
-    (57) input_function -> INPUT LPAREN IDENTIFIER RPAREN .
+    (58) array_append -> IDENTIFIER PERIOD APPEND LPAREN . INTEGER RPAREN
+    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN . FLOAT RPAREN
+    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN . IDENTIFIER RPAREN
 
-    WHILE           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    FOR             reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    IF              reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    INPUT           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    PRINT           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    IDENTIFIER      reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    MINUS           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    NOT             reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    LPAREN          reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    INTEGER         reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    FLOAT           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    STRING          reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    TRUE            reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    FALSE           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    LBRACKET        reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    $end            reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    ENDWHILE        reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    ELSE            reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    ENDIF           reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
-    ENDFOR          reduce using rule 57 (input_function -> INPUT LPAREN IDENTIFIER RPAREN .)
+    INTEGER         shift and go to state 110
+    FLOAT           shift and go to state 111
+    IDENTIFIER      shift and go to state 109
 
 
 state 100
 
-    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN . INTEGER RPAREN
-    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN . FLOAT RPAREN
-    (61) array_append -> IDENTIFIER PERIOD APPEND LPAREN . IDENTIFIER RPAREN
-
-    INTEGER         shift and go to state 111
-    FLOAT           shift and go to state 112
-    IDENTIFIER      shift and go to state 110
-
-
-state 101
-
     (17) assignment_statement -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET . EQUALS or_statement
     (53) atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .
 
-    EQUALS          shift and go to state 113
+    EQUALS          shift and go to state 112
     POWER           reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
     TIMES           reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
     DIVIDE          reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
@@ -3732,12 +3778,12 @@ state 101
     COLON           reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
 
 
-state 102
+state 101
 
     (16) assignment_statement -> IDENTIFIER LBRACKET INTEGER RBRACKET . EQUALS or_statement
     (52) atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .
 
-    EQUALS          shift and go to state 114
+    EQUALS          shift and go to state 113
     POWER           reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
     TIMES           reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
     DIVIDE          reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
@@ -3776,33 +3822,33 @@ state 102
     COLON           reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
 
 
+state 102
+
+    (57) output_function -> PRINT LPAREN term RPAREN .
+
+    WHILE           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    FOR             reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    IF              reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    INPUT           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    PRINT           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    IDENTIFIER      reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    MINUS           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    NOT             reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    LPAREN          reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    INTEGER         reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    FLOAT           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    STRING          reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    TRUE            reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    FALSE           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    LBRACKET        reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    $end            reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    ENDWHILE        reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    ELSE            reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    ENDIF           reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+    ENDFOR          reduce using rule 57 (output_function -> PRINT LPAREN term RPAREN .)
+
+
 state 103
-
-    (58) output_function -> PRINT LPAREN term RPAREN .
-
-    WHILE           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    FOR             reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    IF              reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    INPUT           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    PRINT           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    IDENTIFIER      reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    MINUS           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    NOT             reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    LPAREN          reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    INTEGER         reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    FLOAT           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    STRING          reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    TRUE            reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    FALSE           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    LBRACKET        reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    $end            reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    ENDWHILE        reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    ELSE            reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    ENDIF           reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-    ENDFOR          reduce using rule 58 (output_function -> PRINT LPAREN term RPAREN .)
-
-
-state 104
 
     (9) iterative_statement -> WHILE or_statement COLON start ENDWHILE .
 
@@ -3828,7 +3874,7 @@ state 104
     ENDFOR          reduce using rule 9 (iterative_statement -> WHILE or_statement COLON start ENDWHILE .)
 
 
-state 105
+state 104
 
     (53) atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .
 
@@ -3869,9 +3915,10 @@ state 105
     ENDIF           reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
     ENDFOR          reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
     COMMA           reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
+    RBRACKET        reduce using rule 53 (atom -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET .)
 
 
-state 106
+state 105
 
     (52) atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .
 
@@ -3912,9 +3959,10 @@ state 106
     ENDIF           reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
     ENDFOR          reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
     COMMA           reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
+    RBRACKET        reduce using rule 52 (atom -> IDENTIFIER LBRACKET INTEGER RBRACKET .)
 
 
-state 107
+state 106
 
     (10) iterative_statement -> FOR assignment_statement COMMA or_statement COMMA . assignment_statement COLON start ENDFOR
     (14) assignment_statement -> . or_statement
@@ -3969,7 +4017,7 @@ state 107
     FALSE           shift and go to state 34
     LBRACKET        shift and go to state 21
 
-    assignment_statement           shift and go to state 115
+    assignment_statement           shift and go to state 114
     or_statement                   shift and go to state 10
     and_statement                  shift and go to state 22
     equality_statement             shift and go to state 23
@@ -3981,14 +4029,14 @@ state 107
     term                           shift and go to state 18
     atom                           shift and go to state 31
 
-state 108
+state 107
 
     (11) conditional_statement -> IF or_statement COLON start ELSE . COLON start ENDIF
 
-    COLON           shift and go to state 116
+    COLON           shift and go to state 115
 
 
-state 109
+state 108
 
     (12) conditional_statement -> IF or_statement COLON start ENDIF .
 
@@ -4014,30 +4062,92 @@ state 109
     ENDFOR          reduce using rule 12 (conditional_statement -> IF or_statement COLON start ENDIF .)
 
 
+state 109
+
+    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER . RPAREN
+
+    RPAREN          shift and go to state 116
+
+
 state 110
 
-    (61) array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER . RPAREN
+    (58) array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER . RPAREN
 
     RPAREN          shift and go to state 117
 
 
 state 111
 
-    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER . RPAREN
+    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT . RPAREN
 
     RPAREN          shift and go to state 118
 
 
 state 112
 
-    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT . RPAREN
+    (17) assignment_statement -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET EQUALS . or_statement
+    (18) or_statement -> . and_statement
+    (19) or_statement -> . or_statement OR and_statement
+    (20) and_statement -> . equality_statement
+    (21) and_statement -> . and_statement AND equality_statement
+    (22) equality_statement -> . relational_statement
+    (23) equality_statement -> . equality_statement EQ relational_statement
+    (24) equality_statement -> . equality_statement NEQ relational_statement
+    (25) relational_statement -> . add_statement
+    (26) relational_statement -> . relational_statement LT add_statement
+    (27) relational_statement -> . relational_statement GT add_statement
+    (28) relational_statement -> . relational_statement LTEQ add_statement
+    (29) relational_statement -> . relational_statement GTEQ add_statement
+    (30) add_statement -> . multiply_statement
+    (31) add_statement -> . add_statement PLUS multiply_statement
+    (32) add_statement -> . add_statement MINUS multiply_statement
+    (33) multiply_statement -> . unary_statement
+    (34) multiply_statement -> . multiply_statement TIMES unary_statement
+    (35) multiply_statement -> . multiply_statement DIVIDE unary_statement
+    (36) multiply_statement -> . multiply_statement FLRDIV unary_statement
+    (37) multiply_statement -> . multiply_statement MOD unary_statement
+    (38) unary_statement -> . exponent
+    (39) unary_statement -> . MINUS unary_statement
+    (40) unary_statement -> . NOT unary_statement
+    (41) exponent -> . term
+    (42) exponent -> . term POWER unary_statement
+    (43) term -> . IDENTIFIER
+    (44) term -> . atom
+    (45) term -> . LPAREN or_statement RPAREN
+    (46) atom -> . INTEGER
+    (47) atom -> . FLOAT
+    (48) atom -> . STRING
+    (49) atom -> . TRUE
+    (50) atom -> . FALSE
+    (51) atom -> . LBRACKET elements RBRACKET
+    (52) atom -> . IDENTIFIER LBRACKET INTEGER RBRACKET
+    (53) atom -> . IDENTIFIER LBRACKET IDENTIFIER RBRACKET
 
-    RPAREN          shift and go to state 119
+    MINUS           shift and go to state 27
+    NOT             shift and go to state 30
+    IDENTIFIER      shift and go to state 37
+    LPAREN          shift and go to state 15
+    INTEGER         shift and go to state 19
+    FLOAT           shift and go to state 20
+    STRING          shift and go to state 32
+    TRUE            shift and go to state 33
+    FALSE           shift and go to state 34
+    LBRACKET        shift and go to state 21
 
+    or_statement                   shift and go to state 119
+    and_statement                  shift and go to state 22
+    equality_statement             shift and go to state 23
+    relational_statement           shift and go to state 24
+    add_statement                  shift and go to state 25
+    multiply_statement             shift and go to state 26
+    unary_statement                shift and go to state 28
+    exponent                       shift and go to state 29
+    term                           shift and go to state 18
+    atom                           shift and go to state 31
 
 state 113
 
-    (17) assignment_statement -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET EQUALS . or_statement
+    (16) assignment_statement -> IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS . or_statement
     (18) or_statement -> . and_statement
     (19) or_statement -> . or_statement OR and_statement
     (20) and_statement -> . equality_statement
@@ -4099,74 +4209,12 @@ state 113
 
 state 114
 
-    (16) assignment_statement -> IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS . or_statement
-    (18) or_statement -> . and_statement
-    (19) or_statement -> . or_statement OR and_statement
-    (20) and_statement -> . equality_statement
-    (21) and_statement -> . and_statement AND equality_statement
-    (22) equality_statement -> . relational_statement
-    (23) equality_statement -> . equality_statement EQ relational_statement
-    (24) equality_statement -> . equality_statement NEQ relational_statement
-    (25) relational_statement -> . add_statement
-    (26) relational_statement -> . relational_statement LT add_statement
-    (27) relational_statement -> . relational_statement GT add_statement
-    (28) relational_statement -> . relational_statement LTEQ add_statement
-    (29) relational_statement -> . relational_statement GTEQ add_statement
-    (30) add_statement -> . multiply_statement
-    (31) add_statement -> . add_statement PLUS multiply_statement
-    (32) add_statement -> . add_statement MINUS multiply_statement
-    (33) multiply_statement -> . unary_statement
-    (34) multiply_statement -> . multiply_statement TIMES unary_statement
-    (35) multiply_statement -> . multiply_statement DIVIDE unary_statement
-    (36) multiply_statement -> . multiply_statement FLRDIV unary_statement
-    (37) multiply_statement -> . multiply_statement MOD unary_statement
-    (38) unary_statement -> . exponent
-    (39) unary_statement -> . MINUS unary_statement
-    (40) unary_statement -> . NOT unary_statement
-    (41) exponent -> . term
-    (42) exponent -> . term POWER unary_statement
-    (43) term -> . IDENTIFIER
-    (44) term -> . atom
-    (45) term -> . LPAREN or_statement RPAREN
-    (46) atom -> . INTEGER
-    (47) atom -> . FLOAT
-    (48) atom -> . STRING
-    (49) atom -> . TRUE
-    (50) atom -> . FALSE
-    (51) atom -> . LBRACKET elements RBRACKET
-    (52) atom -> . IDENTIFIER LBRACKET INTEGER RBRACKET
-    (53) atom -> . IDENTIFIER LBRACKET IDENTIFIER RBRACKET
-
-    MINUS           shift and go to state 27
-    NOT             shift and go to state 30
-    IDENTIFIER      shift and go to state 37
-    LPAREN          shift and go to state 15
-    INTEGER         shift and go to state 19
-    FLOAT           shift and go to state 20
-    STRING          shift and go to state 32
-    TRUE            shift and go to state 33
-    FALSE           shift and go to state 34
-    LBRACKET        shift and go to state 21
-
-    or_statement                   shift and go to state 121
-    and_statement                  shift and go to state 22
-    equality_statement             shift and go to state 23
-    relational_statement           shift and go to state 24
-    add_statement                  shift and go to state 25
-    multiply_statement             shift and go to state 26
-    unary_statement                shift and go to state 28
-    exponent                       shift and go to state 29
-    term                           shift and go to state 18
-    atom                           shift and go to state 31
-
-state 115
-
     (10) iterative_statement -> FOR assignment_statement COMMA or_statement COMMA assignment_statement . COLON start ENDFOR
 
-    COLON           shift and go to state 122
+    COLON           shift and go to state 121
 
 
-state 116
+state 115
 
     (11) conditional_statement -> IF or_statement COLON start ELSE COLON . start ENDIF
     (1) start -> .
@@ -4182,11 +4230,11 @@ state 116
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -4246,7 +4294,7 @@ state 116
     LBRACKET        shift and go to state 21
 
     or_statement                   shift and go to state 10
-    start                          shift and go to state 123
+    start                          shift and go to state 122
     code_entity                    shift and go to state 2
     iterative_statement            shift and go to state 3
     conditional_statement          shift and go to state 4
@@ -4265,85 +4313,85 @@ state 116
     exponent                       shift and go to state 29
     atom                           shift and go to state 31
 
+state 116
+
+    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .
+
+    WHILE           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    FOR             reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    IF              reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    INPUT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    PRINT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    IDENTIFIER      reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    MINUS           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    NOT             reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    LPAREN          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    INTEGER         reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    FLOAT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    STRING          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    TRUE            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    FALSE           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    LBRACKET        reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    $end            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    ENDWHILE        reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    ELSE            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    ENDIF           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    ENDFOR          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+
+
 state 117
 
-    (61) array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .
+    (58) array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .
 
-    WHILE           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    FOR             reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    IF              reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    INPUT           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    PRINT           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    IDENTIFIER      reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    MINUS           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    NOT             reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    LPAREN          reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    INTEGER         reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    FLOAT           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    STRING          reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    TRUE            reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    FALSE           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    LBRACKET        reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    $end            reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    ENDWHILE        reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    ELSE            reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    ENDIF           reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
-    ENDFOR          reduce using rule 61 (array_append -> IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN .)
+    WHILE           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    FOR             reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    IF              reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    INPUT           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    PRINT           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    IDENTIFIER      reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    MINUS           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    NOT             reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    LPAREN          reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    INTEGER         reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    FLOAT           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    STRING          reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    TRUE            reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    FALSE           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    LBRACKET        reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    $end            reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    ENDWHILE        reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    ELSE            reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    ENDIF           reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    ENDFOR          reduce using rule 58 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
 
 
 state 118
 
-    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .
+    (59) array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .
 
-    WHILE           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    FOR             reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    IF              reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    INPUT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    PRINT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    IDENTIFIER      reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    MINUS           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    NOT             reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    LPAREN          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    INTEGER         reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    FLOAT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    STRING          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    TRUE            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    FALSE           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    LBRACKET        reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    $end            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    ENDWHILE        reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    ELSE            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    ENDIF           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
-    ENDFOR          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN .)
+    WHILE           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    FOR             reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    IF              reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    INPUT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    PRINT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    IDENTIFIER      reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    MINUS           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    NOT             reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    LPAREN          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    INTEGER         reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    FLOAT           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    STRING          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    TRUE            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    FALSE           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    LBRACKET        reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    $end            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    ENDWHILE        reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    ELSE            reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    ENDIF           reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
+    ENDFOR          reduce using rule 59 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
 
 
 state 119
-
-    (60) array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .
-
-    WHILE           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    FOR             reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    IF              reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    INPUT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    PRINT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    IDENTIFIER      reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    MINUS           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    NOT             reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    LPAREN          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    INTEGER         reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    FLOAT           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    STRING          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    TRUE            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    FALSE           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    LBRACKET        reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    $end            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    ENDWHILE        reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    ELSE            reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    ENDIF           reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-    ENDFOR          reduce using rule 60 (array_append -> IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN .)
-
-
-state 120
 
     (17) assignment_statement -> IDENTIFIER LBRACKET IDENTIFIER RBRACKET EQUALS or_statement .
     (19) or_statement -> or_statement . OR and_statement
@@ -4373,7 +4421,7 @@ state 120
     OR              shift and go to state 38
 
 
-state 121
+state 120
 
     (16) assignment_statement -> IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement .
     (19) or_statement -> or_statement . OR and_statement
@@ -4403,7 +4451,7 @@ state 121
     OR              shift and go to state 38
 
 
-state 122
+state 121
 
     (10) iterative_statement -> FOR assignment_statement COMMA or_statement COMMA assignment_statement COLON . start ENDFOR
     (1) start -> .
@@ -4419,11 +4467,11 @@ state 122
     (11) conditional_statement -> . IF or_statement COLON start ELSE COLON start ENDIF
     (12) conditional_statement -> . IF or_statement COLON start ENDIF
     (13) expression -> . assignment_statement
-    (57) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
-    (58) output_function -> . PRINT LPAREN term RPAREN
-    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
-    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
-    (61) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
+    (56) input_function -> . INPUT LPAREN IDENTIFIER RPAREN
+    (57) output_function -> . PRINT LPAREN term RPAREN
+    (58) array_append -> . IDENTIFIER PERIOD APPEND LPAREN INTEGER RPAREN
+    (59) array_append -> . IDENTIFIER PERIOD APPEND LPAREN FLOAT RPAREN
+    (60) array_append -> . IDENTIFIER PERIOD APPEND LPAREN IDENTIFIER RPAREN
     (14) assignment_statement -> . or_statement
     (15) assignment_statement -> . IDENTIFIER EQUALS or_statement
     (16) assignment_statement -> . IDENTIFIER LBRACKET INTEGER RBRACKET EQUALS or_statement
@@ -4484,7 +4532,7 @@ state 122
 
     assignment_statement           shift and go to state 12
     or_statement                   shift and go to state 10
-    start                          shift and go to state 124
+    start                          shift and go to state 123
     code_entity                    shift and go to state 2
     iterative_statement            shift and go to state 3
     conditional_statement          shift and go to state 4
@@ -4502,21 +4550,21 @@ state 122
     exponent                       shift and go to state 29
     atom                           shift and go to state 31
 
-state 123
+state 122
 
     (11) conditional_statement -> IF or_statement COLON start ELSE COLON start . ENDIF
 
-    ENDIF           shift and go to state 125
+    ENDIF           shift and go to state 124
 
 
-state 124
+state 123
 
     (10) iterative_statement -> FOR assignment_statement COMMA or_statement COMMA assignment_statement COLON start . ENDFOR
 
-    ENDFOR          shift and go to state 126
+    ENDFOR          shift and go to state 125
 
 
-state 125
+state 124
 
     (11) conditional_statement -> IF or_statement COLON start ELSE COLON start ENDIF .
 
@@ -4542,7 +4590,7 @@ state 125
     ENDFOR          reduce using rule 11 (conditional_statement -> IF or_statement COLON start ELSE COLON start ENDIF .)
 
 
-state 126
+state 125
 
     (10) iterative_statement -> FOR assignment_statement COMMA or_statement COMMA assignment_statement COLON start ENDFOR .
 
@@ -4573,7 +4621,7 @@ WARNING:
 WARNING: shift/reduce conflict for LBRACKET in state 16 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 25 resolved as shift
 WARNING: shift/reduce conflict for LBRACKET in state 37 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 83 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 84 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 85 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 86 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 87 resolved as shift

@@ -123,7 +123,7 @@ lexer = lex.lex()
 # Precedence values
 precedence = (
     ('left','PLUS','MINUS','TIMES','DIVIDE','FLRDIV'),
-    ('right','POWER','NOT','LBRACKET'),
+    ('right','POWER','NOT','LBRACKET','UMINUS'),
     )
 
 # Symbol tables
@@ -316,8 +316,11 @@ def p_unary_statement_1(p):
     p[0] = p[1]
 
 def p_unary_statement_2(p):
-    '''unary_statement : MINUS unary_statement
-                       | NOT unary_statement'''
+    'unary_statement : MINUS unary_statement %prec UMINUS'
+    p[0] = (p.lineno(1), 'unary', p[1], p[2])
+
+def p_unary_statement3(p):
+    'unary_statement : NOT unary_statement'
     p[0] = (p.lineno(1), 'unary', p[1], p[2])
 
 ''' exponent
@@ -377,8 +380,7 @@ def p_atom3(p):
 
 # elements in array
 def p_elements1(p):
-    '''elements : elements INTEGER
-                | elements FLOAT'''
+    'elements : elements unary_statement'
     p[0] = (p[1], p[2])
 
 def p_elements2(p):
@@ -790,8 +792,13 @@ def interpreter(result):
 
     # adding elements to the array
     def addelements(tuple, line):
-      if type(tuple[1]).__name__ == 'int' or type(tuple[1]).__name__ =='float': # check if element is of valid type (int and float)
-        array.insert(0, tuple[1])
+      interpreter(tuple[1])
+      value = stack.pop()
+      if value == "ERROR":
+        stack.append("ERROR")
+        return
+      if type(value).__name__ == 'int' or type(value).__name__ =='float': # check if element is of valid type (int and float)
+        array.insert(0, value)
         if tuple[0] != None: # add array elements recursively until there are no elements left
           addelements(tuple[0], line)
       else:
@@ -932,4 +939,5 @@ else: # command line interpreter if no file is entered
     if result != None: # interpret if parser returned an AST
       interpreter(result)
       if stack: # empty the stack
-        print(stack.pop())
+        if stack[0] != "ERROR":
+          print(stack.pop())
