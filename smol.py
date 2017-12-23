@@ -529,7 +529,6 @@ def interpreter(result):
       value1 = stack.pop()
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         stack.append(value1 or value2)
-        return value1 or value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '||' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
@@ -543,7 +542,6 @@ def interpreter(result):
       value1 = stack.pop()
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         stack.append(value1 and value2)
-        return value1 and value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '&&' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
@@ -558,10 +556,8 @@ def interpreter(result):
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         if result[2] == '==': # check which operation to execute
           stack.append(value1 == value2)
-          return value1 == value2
         if result[2] == '!=':
           stack.append(value1 != value2)
-          return value1 != value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
@@ -576,16 +572,12 @@ def interpreter(result):
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         if result[2] == '<': # check which operation to execute
           stack.append(value1 < value2)
-          return value1 < value2
         if result[2] == '>':
           stack.append(value1 > value2)
-          return value1 > value2
         if result[2] == '<=':
           stack.append(value1 <= value2)
-          return value1 <= value2
         if result[2] == '>=':
           stack.append(value1 >= value2)
-          return value1 >= value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
@@ -600,10 +592,8 @@ def interpreter(result):
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '+': # check which operation to execute
           stack.append(value1 + value2)
-          return value1 + value2
         if result[2] == '-':
           stack.append(value1 - value2)
-          return value1 - value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
@@ -618,17 +608,13 @@ def interpreter(result):
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '*': # check which operation to execute
           stack.append(value1 * value2)
-          return value1 * value2
         if result[2] == '/':
           if type(value1).__name__ == 'int' and type(value2).__name__ == 'int':
             stack.append(value1 // value2)
-            return value1 // value2
           else:
             stack.append(value1 / value2)
-            return value1 / value2
         if result[2] == '%':
           stack.append(value1 % value2)
-          return value1 % value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
 
@@ -641,13 +627,11 @@ def interpreter(result):
       if result[2] == '-': # check which operation to execute
         if type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if operand is of valid type (int and float)
           stack.append(-value)
-          return -value
         else:
           print("(Runtime) Error at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
       if result[2] == '!':
         if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if operand is of valid type (bool, int, and float)
           stack.append(not value)
-          return not value
         else:
           print("(Runtime) Error at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
 
@@ -661,7 +645,6 @@ def interpreter(result):
       value1 = stack.pop()
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         stack.append(value1 ** value2)
-        return value1 ** value2
       else:
         print("(Runtime) Error at line %d: Incompatible types '%s' and '%s' for '^' operation" % (result[0], type(value1).__name__, type(value2).__name__))
 
@@ -671,7 +654,6 @@ def interpreter(result):
     if result[1] == 'identifier':
       if result[2] in names: # check if variable is declared
         stack.append(names[result[2]])
-        return names[result[2]]
       else:
         print("(Syntax) Error at line %d: '%s' not declared" % (result[0], result[2]))
 
@@ -681,7 +663,6 @@ def interpreter(result):
     # atoms are stored in reserved variable to bypass NoneType return values from calling 'start'
     if result[1] == 'atom':
       stack.append(result[2])
-      return result[2]
 
     # array elements
     # result = (p.lineno(1), 'atom-array', p[2])
@@ -700,11 +681,9 @@ def interpreter(result):
       array = []
       if result[2] == None: # check if empty list is passed
         stack.append(array)
-        return array
       else:
         addelements(result[2], result[0])
         stack.append(array)
-        return array
 
     # getting element at array index
     # result = (p.lineno(1), 'atom-indexing', p[1], p[3])
@@ -719,7 +698,6 @@ def interpreter(result):
           array = names[result[2]]
           if index < len(array) and index >= 0: # check if 0 < index < arraylength
             stack.append(array[index])
-            return array[index]
           else:
             print("(Runtime) Error at line %d: Index out of bounds" % result[0])
         else:
