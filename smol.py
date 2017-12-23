@@ -11,8 +11,8 @@
 # ------- #
 
 # Reserved Words
-# - words that are part of the language and
-#   must not be used by the user for identifiers
+# words that are part of the language and
+# must not be used by the user for identifiers
 reserved = {
     'if' : 'IF',
     'else' : 'ELSE',
@@ -29,13 +29,13 @@ reserved = {
 }
 
 # List of Tokens
-# - names used by the lexer
+# names used by the lexer
 tokens = [
     # atoms
    'IDENTIFIER','INTEGER','FLOAT','STRING','COMMA','COLON','PERIOD',
     # operators
    'AND','OR','NOT',
-   'PLUS','MINUS','TIMES','DIVIDE','POWER','MOD',
+   'PLUS','MINUS','TIMES','DIVIDE','FLRDIV','POWER','MOD',
    'GT','LT','GTEQ','LTEQ', 
    'EQ','NEQ',
    # assignment
@@ -58,6 +58,7 @@ t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'\/'
+t_FLRDIV  = r'\/\/'
 t_POWER = r'\^'
 t_MOD = r'%'
 t_GT = r'>'
@@ -121,7 +122,7 @@ lexer = lex.lex()
 
 # Precedence values
 precedence = (
-    ('left','PLUS','MINUS','TIMES','DIVIDE','ELSE','COLON'),
+    ('left','PLUS','MINUS','TIMES','DIVIDE','FLRDIV'),
     ('right','POWER','NOT','LBRACKET'),
     )
 
@@ -291,6 +292,7 @@ def p_add_statement_2(p):
     <multiply-statement> ::= <unary-statement>
                            | <multiply-statement> * <unary-statement>
                            | <multiply-statement> / <unary-statement>
+                           | <multiply-statement> // <unary-statement>
                            | <multiply-statement> % <unary-statement> '''
 
 def p_multiply_statement_1(p):
@@ -300,6 +302,7 @@ def p_multiply_statement_1(p):
 def p_multiply_statement_2(p):
     '''multiply_statement : multiply_statement TIMES unary_statement
                           | multiply_statement DIVIDE unary_statement
+                          | multiply_statement FLRDIV unary_statement
                           | multiply_statement MOD unary_statement'''
     p[0] = (p.lineno(2), 'multiply', p[2], p[1], p[3])
  
@@ -332,7 +335,7 @@ def p_exponent_2(p):
 ''' term
     <term> ::= IDENTIFIER
              | <atom>
-             | ( <expression> ) '''
+             | ( <or-statement> ) '''
 
 def p_term_1(p):
     'term : IDENTIFIER'
@@ -390,7 +393,7 @@ def p_input_function(p):
     p[0] = (p.lineno(1), 'input', p[3])  
 
 ''' output function
-    <output-function> ::= print( ("<atom>" | IDENTIFIER) ) '''
+    <output-function> ::= print( <term> ) '''
 
 def p_output_function(p):
     'output_function : PRINT LPAREN term RPAREN'
@@ -441,50 +444,55 @@ def interpreter(result):
     # while statement
     # result = (p.lineno(1), 'while', p[2], p[4])
 
-    if result[1] == 'while': # check if while expression is of type 'bool', 'int', 'float'
+    if result[1] == 'while': 
       interpreter(result[2])
       value = stack.pop()
-      if value == "ERROR":
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if while expression is of type 'bool', 'int', 'float'
       if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
         while (value): # while loop until while expression is not true
           interpreter(result[3])
           interpreter(result[2])
           value = stack.pop()
-          if value == "ERROR":
+          if value == "ERROR": # check if error was returned by one of the interpreter calls
             stack.append("ERROR")
             return
       else:
         print("(SyntaxError) Line %d: While expression should be of type 'bool', 'int', 'float'" % result[0])
         stack.append("ERROR")
+        return
 
     # for statement
     # result = (p.lineno(1), 'for', p[2], p[4], p[6], p[8])
 
     if result[1] == 'for':
       if result[2][1] == 'assign-var' or result[2][1] == 'assign-arr': # check if first expression assignment statement
-        interpreter(result[2]) # check if second expression is of type 'bool', 'int', 'float'
+        interpreter(result[2]) 
         interpreter(result[3])
         value = stack.pop()
-        if value == "ERROR":
+        if value == "ERROR": # check if error was returned by one of the interpreter calls
           stack.append("ERROR")
           return
+        # check if second expression is of type 'bool', 'int', 'float'
         if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
           while (value): # while loop until second expression is not true
             interpreter(result[5])
             interpreter(result[4]) # update assigned variable
             interpreter(result[3])
             value = stack.pop()
-            if value == "ERROR":
+            if value == "ERROR": # check if error was returned by one of the interpreter calls
               stack.append("ERROR")
               return
         else:
           print("(SyntaxError) Line %d: Second 'for' expression should be of type 'bool', 'int', 'float'" % result[0])
           stack.append("ERROR")
+          return
       else:
         print("(SyntaxError) Line %d: First 'for' expression should be an assignment expression" % result[0])
         stack.append("ERROR")
+        return
 
     # if-then-else statement
     # result = (p.lineno(1), 'if', p[2], p[4], p[6])
@@ -492,12 +500,12 @@ def interpreter(result):
     # result = (p.lineno(1), 'if', p[2], p[4])
 
     if result[1] == 'if':
-      interpreter(result[2]) # check if if expression is of type 'bool', 'int', 'float'
+      interpreter(result[2])
       value = stack.pop()
-      if value == "ERROR":
-        print(value)
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if if expression is of type 'bool', 'int', 'float'
       if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
         if value == True: # execute if if expression is true
           interpreter(result[3])
@@ -507,6 +515,7 @@ def interpreter(result):
       else:
         print("(SyntaxError) Line %d: If expression should be of type 'bool', 'int', 'float'" % result[0])
         stack.append("ERROR")
+        return
 
     # assignment to variables
     # result = (p.lineno(2), 'assign-var', p[1], p[3])
@@ -515,7 +524,7 @@ def interpreter(result):
       var = result[2]
       interpreter(result[3])
       value = stack.pop()
-      if value == "ERROR":
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       names[var] = value
@@ -536,7 +545,7 @@ def interpreter(result):
           if index < len(value) and index >= 0: # check if 0 < index < arraylength
             interpreter(result[4])
             toassign = stack.pop()
-            if toassign == "ERROR":
+            if toassign == "ERROR": # check if error was returned by one of the interpreter calls
               stack.append("ERROR")
               return
             if type(toassign).__name__ == 'int' or type(toassign).__name__ == 'float': # check if new value is type int or float
@@ -545,70 +554,79 @@ def interpreter(result):
             else:
               print("(TypeError) Line %d: Value not of type 'int' or 'float'" % result[0])
               stack.append("ERROR")
+              return
           else:
             print("(IndexError) Line %d: Index out of bounds" % result[0])
             stack.append("ERROR")
+            return
         else:
           print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
           stack.append("ERROR")
+          return
       else:
         print("(SyntaxError) Line %d: Index not of type 'int'" % result[0])
         stack.append("ERROR")
+        return
 
     # or statement
     # result = (p.lineno(2), 'or', p[1], p[3])
 
     if result[1] == 'or':
       interpreter(result[2])
-      intepreter(result[3]) # check if operands are not invalid types (list and none)
+      intepreter(result[3])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         stack.append(value1 or value2)
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '||' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
+        return
 
     # and statement
     # result = (p.lineno(2), 'and', p[1], p[3])
 
     if result[1] == 'and':
       interpreter(result[2])
-      interpreter(result[3]) # check if operands are not invalid types (list and none)
+      interpreter(result[3])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         stack.append(value1 and value2)
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '&&' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
+        return
 
     # equality statement
     # result = (p.lineno(2), 'equality', p[2], p[1], p[3])
 
     if result[1] == 'equality':
       interpreter(result[3])
-      interpreter(result[4]) # check if operands are not invalid types (list and none)
+      interpreter(result[4]) 
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         if result[2] == '==': # check which operation to execute
           stack.append(value1 == value2)
@@ -617,21 +635,23 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
+        return
 
     # relational statement
     # result = (p.lineno(2), 'relational', p[2], p[1], p[3])
 
     if result[1] == 'relational':
       interpreter(result[3])
-      interpreter(result[4]) # check if operands are not invalid types (list and none)
+      interpreter(result[4])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are not invalid types (list and none)
       if type(value1).__name__ != 'list' and type(value1).__name__ != 'NoneType' and type(value2).__name__ != 'list' and type(value2).__name__ != 'NoneType':
         if result[2] == '<': # check which operation to execute
           stack.append(value1 < value2)
@@ -644,21 +664,23 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
+        return
 
     # add statement
     # result = (p.lineno(2), 'add', p[2], p[1], p[3])
 
     if result[1] == 'add':
       interpreter(result[3])
-      interpreter(result[4]) # check if operands are not invalid types (list and none)
+      interpreter(result[4])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are not invalid types (list and none)
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '+': # check which operation to execute
           stack.append(value1 + value2)
@@ -667,34 +689,36 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
+        return
 
     # multiply statement
     # result = (p.lineno(2), 'multiply', p[2], p[1], p[3])
 
     if result[1] == 'multiply':
       interpreter(result[3])
-      interpreter(result[4]) # check if operands are valid types (int and float)
+      interpreter(result[4])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are valid types (int and float)
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         if result[2] == '*': # check which operation to execute
           stack.append(value1 * value2)
         if result[2] == '/':
-          if type(value1).__name__ == 'int' and type(value2).__name__ == 'int':
+          stack.append(value1 / value2)
+        if result[2] == '//':
             stack.append(value1 // value2)
-          else:
-            stack.append(value1 / value2)
         if result[2] == '%':
           stack.append(value1 % value2)
       else:
         print("TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
+        return
 
     # unary statement
     # result = (p.lineno(1), 'unary', p[1], p[2])
@@ -702,7 +726,7 @@ def interpreter(result):
     if result[1] == 'unary':
       interpreter(result[3])
       value = stack.pop()
-      if value == "ERROR":
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       if result[2] == '-': # check which operation to execute
@@ -711,32 +735,37 @@ def interpreter(result):
         else:
           print("TypeError) Line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
           stack.append("ERROR")
+          return
       if result[2] == '!':
-        if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if operand is of valid type (bool, int, and float)
+        # check if operand is of valid type (bool, int, and float)
+        if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
           stack.append(not value)
         else:
           print("TypeError) Line at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
           stack.append("ERROR")
+          return
 
     # exponents
     # result = (p.lineno(2), 'exponent', p[1], p[3])
 
     if result[1] == 'exponent':
       interpreter(result[2])
-      interpreter(result[3]) # check if operands are valid types (int and float)
+      interpreter(result[3])
       value2 = stack.pop()
-      if value2 == "ERROR":
+      if value2 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       value1 = stack.pop()
-      if value1 == "ERROR":
+      if value1 == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
+      # check if operands are valid types (int and float)
       if (type(value1).__name__ == 'int' or type(value1).__name__ == 'float') and (type(value2).__name__ == 'int' or type(value2).__name__ == 'float'):
         stack.append(value1 ** value2)
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '^' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
+        return
 
     # identifier
     # result = (p.lineno(1), 'identifier', p[1])
@@ -747,6 +776,7 @@ def interpreter(result):
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
+        return
 
     # atom
     # result = (p.lineno(1), 'atom', p[1])
@@ -767,10 +797,11 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Array values cannot be of type '%s'" %(line, type(tuple[1].__name__)))
         stack.append("ERROR")
+        return
 
     # lists are stored in reserved variable to bypass NoneType return values from calling 'start'
     if result[1] == 'atom-array':
-      array = []
+      array = [] # add elements here, then push to stack
       if result[2] == None: # check if empty list is passed
         stack.append(array)
       else:
@@ -793,12 +824,15 @@ def interpreter(result):
           else:
             print("(IndexError) Line %d: Index out of bounds" % result[0])
             stack.append("ERROR")
+            return
         else:
           print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
           stack.append("ERROR")
+          return
       else:
         print("(SyntaxError) Line %d: Index not of type 'int'" % result[0])
         stack.append("ERROR")
+        return
 
     # input function
     # result = (p.lineno(1), 'input', p[3]) 
@@ -806,9 +840,9 @@ def interpreter(result):
     if result[1] == 'input':
       if result[2] in types: # check if variable is declared
         inp = input()
-        interpreter(parser.parse(inp))
+        interpreter(parser.parse(inp)) # parse the user input
         value = stack.pop()
-        if value == "ERROR":
+        if value == "ERROR": # check if error was returned by one of the interpreter calls
           stack.append("ERROR")
           return
         if type(value).__name__ == types[result[2]]: # check if input has same type as variable
@@ -818,20 +852,22 @@ def interpreter(result):
         else:
           print("(TypeError) Line %d: '%s' is not of type '%s'" % (result[0], value, types[result[2]]))
           stack.append("ERROR")
+          return
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
+        return
 
     # output function
     # result = (p.lineno(1), 'output', p[3])
 
     if result[1] == 'output':
-      interpreter(result[2]) # convert output value to string
+      interpreter(result[2])
       value = stack.pop()
-      if value == "ERROR":
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
-      value = str(value)
+      value = str(value) # convert output value to string
       if value: # check if string is not empty
         print(value)
 
@@ -839,24 +875,26 @@ def interpreter(result):
     # result = (p.lineno(1), 'append-arr', p[1], p[4])
 
     if result[1] == 'append-arr':
-      if result[2] in names:
-        if names[result[2]] != None:
+      if result[2] in names: # check if array is declared
+        if names[result[2]] != None: # check if array has elements
           array = names[result[2]]
         else:
           array = []
-        if result[3] in names:
+        if result[3] in names: # check if element to append is identifier
           value = names[result[3]]
         else:
           value = result[3]
-        if type(value).__name__ == 'int' or type(value).__name__ == 'float':
-          array.append(value)
+        if type(value).__name__ == 'int' or type(value).__name__ == 'float': # check if element is of valid type (int and float)
+          array.append(value) # append element to array
           names[result[2]] = array
         else:
           print("(TypeError) Line %d: Value not of type 'int' or 'float'" % result[0])
           stack.append("ERROR")
+          return
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
+        return
 
 # Build the parser
 import ply.yacc as yacc
@@ -868,16 +906,16 @@ import sys as filein
 # check if user specified a file to read
 # else do command line interpreter
 if len(filein.argv) == 2:
-  file = open(filein.argv[1])
+  file = open(filein.argv[1]) # get file from terminal
   stream = line = file.readline()
   while line != 'end':
     while line != '\n': # allow multiple lines for code entity
       line = file.readline()
       stream = stream + line
-    stream = parser.parse(stream)
-    interpreter(stream)
+    stream = parser.parse(stream) # lex
+    interpreter(stream) # interpreter
     stream = ''
-    stream = line = file.readline()
+    stream = line = file.readline() # reset stream
 else: # command line interpreter if no file is entered
   while True:
     try:
@@ -891,12 +929,7 @@ else: # command line interpreter if no file is entered
     except EOFError:
         break
     result = parser.parse(s)
-    if result != None:
-      print(result)
+    if result != None: # interpret if parser returned an AST
       interpreter(result)
-      if result[2][1] == 'identifier': # print the value of an identifier
-        if result[2][2] in names:
-          if names[result[2][2]] != None:
-            print(names[result[2][2]])
-          else:
-            print("[]")
+      if stack: # empty the stack
+        print(stack.pop())

@@ -9,7 +9,7 @@ temp = 0
 root = 0
 break = 0
 p = len-1
-start = p/2
+start = p//2
 
 while (start >= 0):
 	root = start
