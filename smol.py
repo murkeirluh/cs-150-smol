@@ -170,7 +170,7 @@ def p_code_entity(p):
    
 ''' iterative statements
     <iterative-statement> ::= while <or-statement> : <start> endwhile
-                            | for <assignment-statement> , <or_statement> , <assignment_statement> : <start> endfor '''
+                            | for <assignment-statement> , <or-statement> , <assignment-statement> : <start> endfor '''
 
 def p_iterative_statement_1(p):
    'iterative_statement : WHILE or_statement COLON start ENDWHILE'
@@ -464,7 +464,6 @@ def interpreter(result):
       else:
         print("(SyntaxError) Line %d: While expression should be of type 'bool', 'int', 'float'" % result[0])
         stack.append("ERROR")
-        return
 
     # for statement
     # result = (p.lineno(1), 'for', p[2], p[4], p[6], p[8])
@@ -490,11 +489,9 @@ def interpreter(result):
         else:
           print("(SyntaxError) Line %d: Second 'for' expression should be of type 'bool', 'int', 'float'" % result[0])
           stack.append("ERROR")
-          return
       else:
         print("(SyntaxError) Line %d: First 'for' expression should be an assignment expression" % result[0])
         stack.append("ERROR")
-        return
 
     # if-then-else statement
     # result = (p.lineno(1), 'if', p[2], p[4], p[6])
@@ -517,7 +514,6 @@ def interpreter(result):
       else:
         print("(SyntaxError) Line %d: If expression should be of type 'bool', 'int', 'float'" % result[0])
         stack.append("ERROR")
-        return
 
     # assignment to variables
     # result = (p.lineno(2), 'assign-var', p[1], p[3])
@@ -556,19 +552,15 @@ def interpreter(result):
             else:
               print("(TypeError) Line %d: Value not of type 'int' or 'float'" % result[0])
               stack.append("ERROR")
-              return
           else:
             print("(IndexError) Line %d: Index out of bounds" % result[0])
             stack.append("ERROR")
-            return
         else:
           print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
           stack.append("ERROR")
-          return
       else:
         print("(SyntaxError) Line %d: Index not of type 'int'" % result[0])
         stack.append("ERROR")
-        return
 
     # or statement
     # result = (p.lineno(2), 'or', p[1], p[3])
@@ -590,7 +582,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '||' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
-        return
 
     # and statement
     # result = (p.lineno(2), 'and', p[1], p[3])
@@ -612,7 +603,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '&&' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
-        return
 
     # equality statement
     # result = (p.lineno(2), 'equality', p[2], p[1], p[3])
@@ -637,7 +627,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
-        return
 
     # relational statement
     # result = (p.lineno(2), 'relational', p[2], p[1], p[3])
@@ -666,7 +655,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
-        return
 
     # add statement
     # result = (p.lineno(2), 'add', p[2], p[1], p[3])
@@ -691,7 +679,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
-        return
 
     # multiply statement
     # result = (p.lineno(2), 'multiply', p[2], p[1], p[3])
@@ -720,7 +707,6 @@ def interpreter(result):
       else:
         print("TypeError) Line %d: Incompatible types '%s' and '%s' for '%s' operation" % (result[0], type(value1).__name__, type(value2).__name__, result[2]))
         stack.append("ERROR")
-        return
 
     # unary statement
     # result = (p.lineno(1), 'unary', p[1], p[2])
@@ -737,7 +723,6 @@ def interpreter(result):
         else:
           print("TypeError) Line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
           stack.append("ERROR")
-          return
       if result[2] == '!':
         # check if operand is of valid type (bool, int, and float)
         if type(value).__name__ == 'bool' or type(value).__name__ == 'int' or type(value).__name__ == 'float':
@@ -745,7 +730,6 @@ def interpreter(result):
         else:
           print("TypeError) Line at line %d: Incompatible type '%s' for '%s' operation" % (result[0], type(value).__name__, result[2]))
           stack.append("ERROR")
-          return
 
     # exponents
     # result = (p.lineno(2), 'exponent', p[1], p[3])
@@ -767,7 +751,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Incompatible types '%s' and '%s' for '^' operation" % (result[0], type(value1).__name__, type(value2).__name__))
         stack.append("ERROR")
-        return
 
     # identifier
     # result = (p.lineno(1), 'identifier', p[1])
@@ -778,7 +761,6 @@ def interpreter(result):
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
-        return
 
     # atom
     # result = (p.lineno(1), 'atom', p[1])
@@ -794,7 +776,7 @@ def interpreter(result):
     def addelements(tuple, line):
       interpreter(tuple[1])
       value = stack.pop()
-      if value == "ERROR":
+      if value == "ERROR": # check if error was returned by one of the interpreter calls
         stack.append("ERROR")
         return
       if type(value).__name__ == 'int' or type(value).__name__ =='float': # check if element is of valid type (int and float)
@@ -804,7 +786,6 @@ def interpreter(result):
       else:
         print("(TypeError) Line %d: Array values cannot be of type '%s'" %(line, type(tuple[1].__name__)))
         stack.append("ERROR")
-        return
 
     # lists are stored in reserved variable to bypass NoneType return values from calling 'start'
     if result[1] == 'atom-array':
@@ -831,15 +812,12 @@ def interpreter(result):
           else:
             print("(IndexError) Line %d: Index out of bounds" % result[0])
             stack.append("ERROR")
-            return
         else:
           print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
           stack.append("ERROR")
-          return
       else:
         print("(SyntaxError) Line %d: Index not of type 'int'" % result[0])
         stack.append("ERROR")
-        return
 
     # input function
     # result = (p.lineno(1), 'input', p[3]) 
@@ -859,11 +837,9 @@ def interpreter(result):
         else:
           print("(TypeError) Line %d: '%s' is not of type '%s'" % (result[0], value, types[result[2]]))
           stack.append("ERROR")
-          return
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
-        return
 
     # output function
     # result = (p.lineno(1), 'output', p[3])
@@ -897,11 +873,9 @@ def interpreter(result):
         else:
           print("(TypeError) Line %d: Value not of type 'int' or 'float'" % result[0])
           stack.append("ERROR")
-          return
       else:
         print("(IdentifierError) Line %d: '%s' not declared" % (result[0], result[2]))
         stack.append("ERROR")
-        return
 
 # Build the parser
 import ply.yacc as yacc
@@ -941,3 +915,5 @@ else: # command line interpreter if no file is entered
       if stack: # empty the stack
         if stack[0] != "ERROR":
           print(stack.pop())
+        else:
+          stack.pop()
