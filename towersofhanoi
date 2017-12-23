@@ -1,31 +1,31 @@
 numdisks = 0
 moves = 0
-start = 0
-middle = 0
-goal = 0
+start = ""
+middle = ""
+goal = ""
 hold = 0
 a = 0
 b = 0
 c = 0
-i = 0
-j = 0
 
 A = []
 B = []
 C = []
 
-print("Enter number of disks: ")
+print("Enter number of disks:")
 input(numdisks)
-print("Enter name of starting peg: ")
-print("Enter name of middle peg: ")
+print("Enter name of starting peg:")
+input(start)
+print("Enter name of middle peg:")
 input(middle)
-print("Enter name of goal peg: ")
+print("Enter name of goal peg:")
 input(goal)
 
 moves = 2 ^ numdisks - 1
 
-for i = 1, i <= numdisks, i = i+1:
-	A.append(i+1)
+for i = 0, i < numdisks, i=i+1:
+	x = i + 1
+	A.append(x)
 	B.append(0)
 	C.append(0)
 endfor
@@ -40,25 +40,23 @@ for j = 1, j <= moves, j = j+1:
 	if (j % 3 == 0):
 		b = 0
 		c = 0
-
 		while (B[b] == 0 && b < numdisks-1):
 			b = b + 1
 		endwhile
-
 		while (C[c] == 0 && c < numdisks-1):
 			c = c + 1
 		endwhile
-
 		if (B[b] < C[c]):
 			if (B[b] == 0):
-				B[b-1] = C[c]
+				B[b] = C[c]
 				C[c] = 0
 				print("Move disk from")
 				print(goal)
 				print("to")
 				print(middle)
 			else:
-				C[c-1] = B[b]
+				x = c - 1
+				C[x] = B[b]
 				B[b] = 0
 				print("Move disk from")
 				print(middle)
@@ -67,14 +65,15 @@ for j = 1, j <= moves, j = j+1:
 			endif
 		else:
 			if (C[c] == 0):
-				C[c-1] = B[b]
+				C[c] = B[b]
 				B[b] = 0
 				print("Move disk from")
 				print(middle)
 				print("to")
 				print(goal)
 			else:
-				B[b-1] = C[c]
+				x = b - 1
+				B[x] = C[c]
 				C[c] = 0
 				print("Move disk from")
 				print(goal)
@@ -82,30 +81,27 @@ for j = 1, j <= moves, j = j+1:
 				print(middle)
 			endif
 		endif
-
 	else:
 		if (j % 3 == 1):
 			a = 0
 			c = 0
-
 			while (A[a] == 0 && a < numdisks-1):
 				a = a + 1
 			endwhile
-
 			while (C[c] == 0 && c < numdisks-1):
 				c = c + 1
 			endwhile
-
 			if (A[a] < C[c]):
 				if (A[a] == 0):
-					A[a-1] = C[c]
+					A[a] = C[c]
 					C[c] = 0
 					print("Move disk from")
 					print(goal)
 					print("to")
 					print(start)
 				else:
-					C[c-1] = A[a]
+					x = c - 1
+					C[c] = A[a]
 					A[a] = 0
 					print("Move disk from")
 					print(start)
@@ -114,14 +110,15 @@ for j = 1, j <= moves, j = j+1:
 				endif
 			else:
 				if (C[c] == 0):
-					C[c-1] = A[a]
+					C[c] = A[a]
 					A[a] = 0
 					print("Move disk from")
 					print(start)
 					print("to")
 					print(goal)
 				else:
-					A[a-1] = C[c]
+					x = a - 1
+					A[x] = C[c]
 					C[c] = 0
 					print("Move disk from")
 					print(goal)
@@ -129,55 +126,51 @@ for j = 1, j <= moves, j = j+1:
 					print(start)
 				endif
 			endif
-
 		else:
 			a = 0
 			b = 0
-
 			while (A[a] == 0 && a < numdisks-1):
 				a = a + 1
 			endwhile
-
 			while (B[b] == 0 && b < numdisks-1):
 				b = b + 1
 			endwhile
-
 			if (A[a] < B[b]):
 				if (A[a] == 0):
-					A[a-1] = B[b]
+					A[a] = B[b]
 					B[b] = 0
 					print("Move disk from")
-					print(start)
-					print("to")
 					print(middle)
+					print("to")
+					print(start)
 				else:
-					B[b-1] = A[a]
+					b = x - 1
+					B[x] = A[a]
 					A[a] = 0
 					print("Move disk from")
-					print(middle)
-					print("to")
 					print(start)
+					print("to")
+					print(middle)
 				endif
 			else:
 				if (B[b] == 0):
-					B[b-1] = A[a]
+					B[b] = A[a]
 					A[a] = 0
 					print("Move disk from")
-					print(middle)
-					print("to")
 					print(start)
+					print("to")
+					print(middle)
 				else:
-					A[a-1] = B[b]
+					x = a - 1
+					A[x] = B[b]
 					B[b] = 0
 					print("Move disk from")
-					print(start)
-					print("to")
 					print(middle)
+					print("to")
+					print(start)
 				endif
 			endif
-
 		endif
-
 	endif
 endfor
 
